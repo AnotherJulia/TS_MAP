@@ -1,0 +1,57 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <AssemblyName>TaleSpireMapExporter</AssemblyName>
+    <RootNamespace>TaleSpireMapExporter</RootNamespace>
+
+    <!--
+      Point this at your TaleSpire install, e.g.:
+        dotnet build -p:TaleSpirePath="C:\Program Files (x86)\Steam\steamapps\common\TaleSpire"
+      or set it permanently by copying this line into a Directory.Build.props next to this
+      file (that file is gitignored so your local path never gets committed).
+    -->
+    <TaleSpirePath Condition="'$(TaleSpirePath)' == ''">C:\Program Files (x86)\Steam\steamapps\common\TaleSpire</TaleSpirePath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- BepInEx core, provided by the BepInExPack already installed under TaleSpire's install dir -->
+    <Reference Include="BepInEx">
+      <HintPath>$(TaleSpirePath)\BepInEx\core\BepInEx.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(TaleSpirePath)\BepInEx\core\0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <!-- Game + Unity assemblies -->
+    <Reference Include="Bouncyrock.TaleSpire.Runtime">
+      <HintPath>$(TaleSpirePath)\TaleSpire_Data\Managed\Bouncyrock.TaleSpire.Runtime.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(TaleSpirePath)\TaleSpire_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>$(TaleSpirePath)\TaleSpire_Data\Managed\UnityEngine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(TaleSpirePath)\TaleSpire_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>$(TaleSpirePath)\TaleSpire_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="manifest.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

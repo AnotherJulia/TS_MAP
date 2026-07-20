@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>TaleSpire Map Viewer</title>
+  <link rel="stylesheet" href="style.css" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="drop-overlay">
+    <div id="drop-message">Drop a TaleSpire export JSON file here</div>
+  </div>
+
+  <div id="panel">
+    <h1>TaleSpire Map Viewer</h1>
+    <label id="file-picker">
+      Load export…
+      <input type="file" id="file-input" accept="application/json,.json" />
+    </label>
+    <div id="board-info"></div>
+    <div id="legend"></div>
+  </div>
+
+  <canvas id="scene"></canvas>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>

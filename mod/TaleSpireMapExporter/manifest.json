@@ -1,0 +1,9 @@
+{
+  "name": "TaleSpireMapExporter",
+  "version_number": "0.1.0",
+  "website_url": "",
+  "description": "Exports the currently placed slabs/tiles/props/creatures on a TaleSpire board to a JSON file for viewing in the companion 3D web viewer.",
+  "dependencies": [
+    "bbepis-BepInExPack-5.4.2100"
+  ]
+}

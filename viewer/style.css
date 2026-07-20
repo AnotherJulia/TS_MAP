@@ -1,0 +1,126 @@
+:root {
+  color-scheme: dark;
+  --bg: #14161a;
+  --panel-bg: rgba(24, 26, 31, 0.9);
+  --text: #e6e8eb;
+  --muted: #9aa1ab;
+  --border: #2c2f36;
+  --accent: #5b8def;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overflow: hidden;
+}
+
+#scene {
+  position: fixed;
+  inset: 0;
+  display: block;
+}
+
+#panel {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 10;
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  width: 240px;
+  backdrop-filter: blur(6px);
+}
+
+#panel h1 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 10px;
+  color: var(--text);
+}
+
+#file-picker {
+  display: inline-block;
+  font-size: 13px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--accent);
+}
+#file-picker:hover { border-color: var(--accent); }
+#file-picker input { display: none; }
+
+#board-info {
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+#board-info strong { color: var(--text); }
+
+#legend {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text);
+}
+
+.legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex: none;
+}
+
+.legend-count {
+  margin-left: auto;
+  color: var(--muted);
+}
+
+#drop-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(91, 141, 239, 0.15);
+  border: 3px dashed var(--accent);
+  pointer-events: none;
+}
+#drop-overlay.active { display: flex; }
+
+#drop-message {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--panel-bg);
+  padding: 12px 20px;
+  border-radius: 10px;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+    --bg: #f4f5f7;
+    --panel-bg: rgba(255, 255, 255, 0.9);
+    --text: #1b1e24;
+    --muted: #5b616b;
+    --border: #dcdfe4;
+  }
+}
