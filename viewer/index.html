@@ -18,17 +18,68 @@
     <div id="drop-message">Drop a TaleSpire export JSON file here</div>
   </div>
 
-  <div id="panel">
-    <h1>TaleSpire Map Viewer</h1>
-    <label id="file-picker">
-      Load export…
-      <input type="file" id="file-input" accept="application/json,.json" />
-    </label>
-    <div id="board-info"></div>
-    <div id="legend"></div>
+  <div id="hud-stack">
+    <div id="panel" class="hud">
+      <h1>TaleSpire Map Viewer</h1>
+      <label id="file-picker">
+        Load export…
+        <input type="file" id="file-input" accept="application/json,.json" />
+      </label>
+      <div id="board-info"></div>
+      <label id="gm-toggle">
+        <input type="checkbox" id="gm-checkbox" />
+        <span>GM mode</span>
+      </label>
+      <div id="gm-hint">Click a building to add a location.</div>
+    </div>
+
+    <div id="tweak-panel" class="hud">
+      <h1>Tweaks</h1>
+      <div class="tweak-row">
+        <label for="tweak-ground">Ground color</label>
+        <input type="color" id="tweak-ground" />
+      </div>
+      <div class="tweak-row">
+        <label for="tweak-building">Building color</label>
+        <input type="color" id="tweak-building" />
+      </div>
+      <div class="tweak-row">
+        <label for="tweak-subway">Subway color</label>
+        <input type="color" id="tweak-subway" />
+      </div>
+      <div class="tweak-row">
+        <label for="tweak-subway-width">Subway width</label>
+        <input type="range" id="tweak-subway-width" min="0.04" max="0.6" step="0.01" />
+      </div>
+      <div class="tweak-row">
+        <label for="tweak-subway-sensitivity">Connect sensitivity</label>
+        <input type="range" id="tweak-subway-sensitivity" min="0.4" max="2.2" step="0.05" />
+      </div>
+      <div class="tweak-row">
+        <label for="tweak-marker">Marker color</label>
+        <input type="color" id="tweak-marker" />
+      </div>
+    </div>
   </div>
 
   <canvas id="scene"></canvas>
+
+  <!-- Floating info card for a location. Positioned in screen space each frame
+       from the anchor point above its building (see updateCard in main.js). -->
+  <div id="location-card" class="hud hidden">
+    <div id="loc-view">
+      <div id="loc-view-title"></div>
+      <div id="loc-view-desc"></div>
+    </div>
+    <div id="loc-edit" class="hidden">
+      <input id="loc-edit-title" type="text" placeholder="Location name" maxlength="80" />
+      <textarea id="loc-edit-desc" rows="4" placeholder="Description (players will see this on hover)"></textarea>
+      <div id="loc-actions">
+        <button id="loc-delete" type="button" class="danger">Delete</button>
+        <button id="loc-save" type="button" class="primary">Save</button>
+      </div>
+    </div>
+  </div>
 
   <script type="module" src="main.js"></script>
 </body>

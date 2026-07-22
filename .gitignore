@@ -2,3 +2,8 @@ bin/
 obj/
 Directory.Build.props
 *.user
+
+# Real board exports (personal map data, can be large) dropped in viewer/ for
+# local testing - NOT asset-index.json, which is shipped app data (GUID ->
+# name/water/light lookup), not a personal export.
+/viewer/TaleSpire*.json

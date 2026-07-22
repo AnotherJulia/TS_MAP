@@ -1,11 +1,30 @@
+/* ------------------------------------------------------------------ *
+ * Cyberpunk HUD theme. Neon cyan on deep dark, angled-corner panels
+ * with corner brackets, scanline overlay, glowing type. Dark-only by
+ * design (a light cyberpunk theme would defeat the look).
+ * ------------------------------------------------------------------ */
+
 :root {
   color-scheme: dark;
-  --bg: #14161a;
-  --panel-bg: rgba(24, 26, 31, 0.9);
-  --text: #e6e8eb;
-  --muted: #9aa1ab;
-  --border: #2c2f36;
-  --accent: #5b8def;
+  --bg: #05080c;
+  --bg-2: #0a1018;
+  --panel-bg: rgba(6, 14, 22, 0.86);
+  --field-bg: rgba(2, 8, 14, 0.9);
+
+  --cyan: #00e6ff;
+  --cyan-soft: #7ff3ff;
+  --cyan-dim: #14808f;
+  --magenta: #ff2e88;
+  --amber: #ffcf4a;
+
+  --text: #d6f7ff;
+  --muted: #6fa3b0;
+  --border: rgba(0, 230, 255, 0.45);
+  --border-soft: rgba(0, 230, 255, 0.18);
+  --glow: rgba(0, 230, 255, 0.35);
+
+  --hud-font: "Rajdhani", "Segoe UI", -apple-system, sans-serif;
+  --display-font: "Orbitron", "Rajdhani", "Segoe UI", sans-serif;
 }
 
 * { box-sizing: border-box; }
@@ -15,7 +34,7 @@ html, body {
   height: 100%;
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--hud-font);
   overflow: hidden;
 }
 
@@ -25,73 +44,353 @@ html, body {
   display: block;
 }
 
-#panel {
+/* Scanlines + vignette over the whole viewport, never intercepting input. */
+body::after {
+  content: "";
   position: fixed;
-  top: 16px;
-  left: 16px;
-  z-index: 10;
-  background: var(--panel-bg);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 14px 16px;
-  width: 240px;
-  backdrop-filter: blur(6px);
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 230, 255, 0.035) 0px,
+      rgba(0, 230, 255, 0.035) 1px,
+      transparent 1px,
+      transparent 3px
+    ),
+    radial-gradient(120% 120% at 50% 45%, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+  mix-blend-mode: screen;
 }
 
-#panel h1 {
-  font-size: 14px;
-  font-weight: 600;
-  margin: 0 0 10px;
-  color: var(--text);
+/* ---- shared HUD surface: angled top-right corner + corner brackets ---- */
+.hud {
+  position: relative;
+  background: linear-gradient(160deg, var(--panel-bg), rgba(3, 9, 15, 0.9));
+  border: 1px solid var(--border);
+  /* Notch the top-right corner for that paneled-HUD silhouette. */
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.6),
+    0 0 22px var(--glow),
+    inset 0 0 24px rgba(0, 230, 255, 0.06);
+  backdrop-filter: blur(7px);
+}
+/* Corner brackets, drawn as four L-shapes with layered backgrounds. */
+.hud::before {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--cyan), var(--cyan)) left top / 12px 2px no-repeat,
+    linear-gradient(var(--cyan), var(--cyan)) left top / 2px 12px no-repeat,
+    linear-gradient(var(--cyan), var(--cyan)) left bottom / 12px 2px no-repeat,
+    linear-gradient(var(--cyan), var(--cyan)) left bottom / 2px 12px no-repeat,
+    linear-gradient(var(--cyan), var(--cyan)) right bottom / 12px 2px no-repeat,
+    linear-gradient(var(--cyan), var(--cyan)) right bottom / 2px 12px no-repeat;
+  opacity: 0.85;
+}
+
+/* Stacks #panel and #tweak-panel vertically at a single fixed anchor point,
+   so #tweak-panel just sits "right under" #panel regardless of #panel's
+   content-driven height. */
+#hud-stack {
+  position: fixed;
+  top: 18px;
+  left: 18px;
+  z-index: 10;
+  width: 258px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: calc(100vh - 36px);
+  overflow-y: auto;
+}
+
+#panel, #tweak-panel {
+  padding: 16px 18px 16px;
+}
+.hud::after {
+  /* Thin accent strip along the top edge. */
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  height: 2px;
+  width: 62%;
+  background: linear-gradient(90deg, var(--cyan), transparent);
+  box-shadow: 0 0 10px var(--cyan);
+}
+
+.hud h1 {
+  font-family: var(--display-font);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin: 2px 0 14px;
+  color: var(--cyan);
+  text-shadow: 0 0 12px var(--glow);
 }
 
 #file-picker {
   display: inline-block;
   font-size: 13px;
-  padding: 6px 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 7px 14px;
   border: 1px solid var(--border);
-  border-radius: 6px;
   cursor: pointer;
-  color: var(--accent);
+  color: var(--cyan);
+  background: rgba(0, 230, 255, 0.05);
+  transition: background 0.15s, box-shadow 0.15s;
 }
-#file-picker:hover { border-color: var(--accent); }
+#file-picker:hover {
+  background: rgba(0, 230, 255, 0.14);
+  box-shadow: 0 0 14px var(--glow);
+}
 #file-picker input { display: none; }
 
 #board-info {
-  margin-top: 12px;
-  font-size: 12px;
+  margin-top: 14px;
+  font-size: 13px;
+  letter-spacing: 0.4px;
   color: var(--muted);
-  line-height: 1.5;
+  line-height: 1.55;
 }
-#board-info strong { color: var(--text); }
-
-#legend {
-  margin-top: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+#board-info strong {
+  color: var(--cyan-soft);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-.legend-row {
+#gm-toggle {
+  margin-top: 16px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 12px;
+  gap: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
   color: var(--text);
+  cursor: pointer;
+  user-select: none;
+}
+/* Custom neon checkbox. */
+#gm-toggle input {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  border: 1px solid var(--border);
+  background: var(--field-bg);
+  cursor: pointer;
+  position: relative;
+  transition: box-shadow 0.15s;
+}
+#gm-toggle input:checked {
+  background: var(--cyan);
+  box-shadow: 0 0 12px var(--cyan);
+}
+#gm-toggle input:checked::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  background: var(--bg);
 }
 
-.legend-swatch {
+#gm-hint {
+  margin-top: 8px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--amber);
+  text-shadow: 0 0 8px rgba(255, 207, 74, 0.4);
+  display: none;
+}
+#gm-hint.visible { display: block; }
+
+/* ---- tweak panel ---- */
+.tweak-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 12px;
+}
+.tweak-row:first-of-type { margin-top: 2px; }
+
+.tweak-row label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--muted);
+  flex: 1;
+}
+
+/* Color swatches: strip the native chrome down to a bare, HUD-bordered box. */
+.tweak-row input[type="color"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 34px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--border);
+  background: var(--field-bg);
+  cursor: pointer;
+  flex: none;
+  transition: box-shadow 0.15s;
+}
+.tweak-row input[type="color"]:hover { box-shadow: 0 0 10px var(--glow); }
+.tweak-row input[type="color"]::-webkit-color-swatch-wrapper { padding: 2px; }
+.tweak-row input[type="color"]::-webkit-color-swatch { border: none; }
+.tweak-row input[type="color"]::-moz-color-swatch { border: none; }
+
+/* Sliders: thin cyan track, glowing square thumb. */
+.tweak-row input[type="range"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100px;
+  height: 3px;
+  flex: none;
+  background: var(--border-soft);
+  border-radius: 2px;
+  cursor: pointer;
+}
+.tweak-row input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
   width: 12px;
   height: 12px;
-  border-radius: 3px;
-  flex: none;
+  background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
+  cursor: pointer;
+}
+.tweak-row input[type="range"]::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: none;
+  background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
+  cursor: pointer;
 }
 
-.legend-count {
-  margin-left: auto;
+/* ---- floating location card ---- */
+#location-card {
+  position: fixed;
+  z-index: 15;
+  width: 234px;
+  padding: 0;
+  font-size: 13px;
+  /* Anchored by its bottom-left corner to the projected leader-line tip. */
+  transform: translate(0, -100%);
+  overflow: hidden;
+}
+#location-card.hidden { display: none; }
+
+#loc-view { padding: 11px 13px 13px; }
+
+#loc-view-title,
+#loc-edit-title {
+  font-family: var(--display-font);
+  font-weight: 600;
+  color: var(--cyan);
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px var(--glow);
+}
+#loc-view-title {
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-soft);
+}
+#loc-view-title:empty::before {
+  content: "Unnamed location";
   color: var(--muted);
+  font-family: var(--hud-font);
+  font-weight: 400;
+  font-style: italic;
+  text-shadow: none;
+  letter-spacing: 0.5px;
 }
+#loc-view-desc {
+  margin-top: 9px;
+  color: var(--text);
+  opacity: 0.82;
+  line-height: 1.5;
+  letter-spacing: 0.3px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+#loc-view-desc:empty { display: none; }
 
+#loc-edit { padding: 11px 13px 12px; }
+
+#loc-edit-title,
+#loc-edit-desc {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--field-bg);
+  border: 1px solid var(--border-soft);
+  color: var(--text);
+  font-family: var(--hud-font);
+  font-size: 13px;
+  letter-spacing: 0.4px;
+  padding: 7px 9px;
+  margin-bottom: 9px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+#loc-edit-title {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--cyan-soft);
+}
+#loc-edit-title:focus,
+#loc-edit-desc:focus {
+  outline: none;
+  border-color: var(--cyan);
+  box-shadow: 0 0 12px var(--glow);
+}
+#loc-edit-desc { resize: vertical; min-height: 58px; }
+
+#loc-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+}
+#loc-actions button {
+  font-family: var(--hud-font);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 6px 15px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  background: rgba(0, 230, 255, 0.05);
+  color: var(--cyan);
+  transition: background 0.15s, box-shadow 0.15s;
+}
+#loc-actions button:hover { box-shadow: 0 0 12px var(--glow); }
+#loc-actions button.primary {
+  background: var(--cyan);
+  border-color: var(--cyan);
+  color: var(--bg);
+}
+#loc-actions button.primary:hover { box-shadow: 0 0 16px var(--cyan); }
+#loc-actions button.danger {
+  color: var(--magenta);
+  border-color: rgba(255, 46, 136, 0.5);
+  background: rgba(255, 46, 136, 0.06);
+}
+#loc-actions button.danger:hover { box-shadow: 0 0 12px rgba(255, 46, 136, 0.5); }
+
+/* ---- drag & drop overlay ---- */
 #drop-overlay {
   position: fixed;
   inset: 0;
@@ -99,28 +398,22 @@ html, body {
   display: none;
   align-items: center;
   justify-content: center;
-  background: rgba(91, 141, 239, 0.15);
-  border: 3px dashed var(--accent);
+  background: rgba(0, 230, 255, 0.08);
+  border: 2px dashed var(--cyan);
   pointer-events: none;
 }
 #drop-overlay.active { display: flex; }
 
 #drop-message {
+  font-family: var(--display-font);
   font-size: 20px;
-  font-weight: 600;
-  color: var(--text);
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--cyan);
+  text-shadow: 0 0 16px var(--glow);
   background: var(--panel-bg);
-  padding: 12px 20px;
-  border-radius: 10px;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color-scheme: light;
-    --bg: #f4f5f7;
-    --panel-bg: rgba(255, 255, 255, 0.9);
-    --text: #1b1e24;
-    --muted: #5b616b;
-    --border: #dcdfe4;
-  }
+  border: 1px solid var(--border);
+  padding: 16px 26px;
+  box-shadow: 0 0 30px var(--glow);
 }
