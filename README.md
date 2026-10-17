@@ -88,6 +88,19 @@ Cyberspace style.
 - Movement grid and pathfinding: `viewer/js/grid.js` (pure, testable with Node). Camera:
   `viewer/js/controls.js`. Export normalisation: `viewer/js/data.js`.
 
+## Releasing
+
+Push a version tag (after bumping the version in `app/src-tauri/tauri.conf.json`, `Cargo.toml` and
+`package.json`, and running `mod/build-dist.sh` if the mod changed):
+
+```sh
+git tag v0.3.0 && git push origin v0.3.0
+```
+
+`.github/workflows/release.yml` builds the viewer on macOS (universal) and Windows. It packages one
+zip per platform with `release/package.sh` (install guide, mod installer, viewer installer) and
+creates a **draft** release; check it and publish.
+
 ## Repository layout
 
 | Folder | What |
@@ -97,4 +110,5 @@ Cyberspace style.
 | `app/` | Tauri desktop wrapper around `viewer/`, plus native file access to the export folder. See [app/README.md](app/README.md). |
 | `schema/` | The export file format ([export-schema.md](schema/export-schema.md)). |
 | `docs/` | [Install guide](docs/INSTALL.md). |
+| `release/` | Release packaging: per-platform install guides, `package.sh`, release notes. |
 | `open-viewer.command` | Runs the viewer in a browser instead of the app (macOS). |

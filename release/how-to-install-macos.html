@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TaleSpire Map Tools: install on macOS</title>
+<style>
+  :root { color-scheme: dark; --bg:#05080c; --panel:#0b131c; --text:#d6f7ff; --muted:#7fa8b5; --cyan:#00e6ff; --amber:#ffcf4a; --border:rgba(0,230,255,.28); }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:16px/1.6 -apple-system, "Segoe UI", system-ui, sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 40px 20px 64px; }
+  h1 { color:var(--cyan); font-size:28px; margin:0 0 4px; letter-spacing:.5px; }
+  .sub { color:var(--muted); margin:0 0 32px; }
+  h2 { font-size:20px; margin:36px 0 12px; display:flex; gap:12px; align-items:center; }
+  h2 .n { display:inline-grid; place-items:center; width:30px; height:30px; border-radius:50%; background:var(--cyan); color:var(--bg); font-size:16px; flex:none; }
+  section { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:4px 22px 18px; margin-bottom:18px; }
+  ol, ul { padding-left: 22px; } li { margin: 6px 0; }
+  code, kbd, .path { font: 14px ui-monospace, Menlo, monospace; background:#02060a; border:1px solid var(--border); border-radius:4px; padding:1px 6px; color:#9ff3ff; word-break: break-all; }
+  pre { background:#02060a; border:1px solid var(--border); border-radius:6px; padding:10px 12px; overflow-x:auto; font:13px ui-monospace, Menlo, monospace; color:#9ff3ff; }
+  .note { border-left:3px solid var(--amber); padding:6px 12px; background:rgba(255,207,74,.07); border-radius:0 6px 6px 0; margin:12px 0; }
+  .note b { color:var(--amber); }
+  table { border-collapse: collapse; width:100%; font-size:15px; } td, th { text-align:left; padding:6px 8px; border-bottom:1px solid var(--border); vertical-align:top; }
+  a { color: var(--cyan); }
+</style>
+</head>
+<body>
+<main>
+  <h1>TaleSpire Map Tools</h1>
+  <p class="sub">Install on macOS (Apple Silicon and Intel). Two parts, about 5 minutes, once per Mac.</p>
+
+  <p>This package has two parts:</p>
+  <ul>
+    <li><b>1 · TaleSpire mod</b>: runs inside TaleSpire and exports the board you're on with
+      <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>E</kbd>.</li>
+    <li><b>2 · Viewer app</b>: opens those exports. You can shape the map, explore it as a map or as
+      Cyberpunk-style netspace, walk a token on the grid, and keep notes.</li>
+  </ul>
+
+  <h2><span class="n">1</span> Install the TaleSpire mod</h2>
+  <section>
+    <ol>
+      <li><b>Quit TaleSpire</b> if it's running.</li>
+      <li>Open the <b>1 - TaleSpire mod</b> folder, <b>right-click <code>Install mod.command</code> → Open</b>,
+        then click <b>Open</b> again.
+        <div class="note"><b>Why right-click?</b> The installer isn't signed by an Apple developer, so a
+          plain double-click is blocked the first time. Right-click → Open lets you allow it.</div>
+      </li>
+      <li>A Terminal window runs the installer. It downloads BepInEx (the mod loader) into TaleSpire's
+        game folder, checks it, and installs the mod. At the end it prints one line to copy, like:
+        <pre>"/Users/you/Library/Application Support/Steam/steamapps/common/TaleSpire/run_bepinex.sh" %command%</pre>
+      </li>
+      <li>In <b>Steam</b>, right-click <b>TaleSpire → Properties → General → Launch Options</b> and paste that line.
+        You only do this once.</li>
+      <li>Start TaleSpire from Steam as usual.</li>
+    </ol>
+    <div class="note"><b>Apple Silicon:</b> the launcher starts TaleSpire through Rosetta (as an Intel app),
+      because the mod loader can't run in native Apple Silicon games. It runs a little slower but works.
+      If macOS asks to install Rosetta, say yes.</div>
+  </section>
+
+  <h2><span class="n">2</span> Install the viewer app</h2>
+  <section>
+    <ol>
+      <li>Open the <b>2 - Viewer app</b> folder and double-click the <code>.dmg</code>.</li>
+      <li>Drag <b>TaleSpire Map Viewer</b> into <b>Applications</b>.</li>
+      <li>The first time, <b>right-click the app in Applications → Open → Open</b> (it isn't signed by an
+        Apple developer either). After that it opens normally.</li>
+    </ol>
+    <div class="note"><b>If macOS says the app "is damaged" or can't be opened,</b> run this once in
+      Terminal, then open it again:
+      <pre>xattr -dr com.apple.quarantine "/Applications/TaleSpire Map Viewer.app"</pre></div>
+  </section>
+
+  <h2><span class="n">3</span> Use it</h2>
+  <section>
+    <ol>
+      <li>In TaleSpire, open a board and press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>E</kbd> (the
+        <b>Control</b> key, not Command). A message at the top of the screen confirms the export.
+        To export only part of the board, select that area with TaleSpire's selection tool first.</li>
+      <li>In the viewer, click <b>Open latest export</b>.</li>
+      <li>Tools: <b>1</b> look · <b>2</b> select and remove pieces · <b>3</b> token (click floors to walk;
+        <b>V</b> for first person) · <b>4</b> notes. Use <b>G</b> to switch styles, including Cyberspace.
+        <b>WASD</b>/<b>Q E</b>/<b>R F</b> move the camera.</li>
+    </ol>
+  </section>
+
+  <h2><span class="n">?</span> If something doesn't work</h2>
+  <section>
+    <table>
+      <tr><th>Problem</th><th>Fix</th></tr>
+      <tr><td>Ctrl+Shift+E does nothing</td><td>Check the Steam launch option, and start TaleSpire from
+        <b>Steam</b>. In the game folder, <code>BepInEx/LogOutput.log</code> should contain
+        "TaleSpire Map Exporter … loaded". If it doesn't, run <code>Install mod.command</code> again.</td></tr>
+      <tr><td>Where are the exports?</td><td><span class="path">Documents/TaleSpireMapExporter</span>
+        (the viewer's <b>Show exports folder</b> button opens it)</td></tr>
+      <tr><td>Find the game folder</td><td>Steam → right-click TaleSpire → Manage → Browse local files</td></tr>
+      <tr><td>Remove the mod</td><td>Clear the Steam launch option. TaleSpire then starts without mods.</td></tr>
+    </table>
+  </section>
+</main>
+</body>
+</html>

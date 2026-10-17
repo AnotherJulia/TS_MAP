@@ -13,3 +13,6 @@ Directory.Build.props
 
 # Tauri app build tools
 node_modules/
+
+# Local release packaging output
+release/out/

@@ -143,13 +143,16 @@ Write-Step 'TaleSpire Map Exporter plugin'
 $dist = Join-Path $PSScriptRoot 'dist'
 $prebuilt = Join-Path $dist "$PluginName.dll"
 
+$project = Join-Path $PSScriptRoot "$PluginName\$PluginName.csproj"
+if ($Build -and -not (Test-Path $project)) {
+  Fail "-Build needs the mod's source code (the TS_MAP repository); this package only has the prebuilt plugin."
+}
 if ($Build -or -not (Test-Path $prebuilt)) {
   $dotnet = Get-Command dotnet -ErrorAction SilentlyContinue
   if (-not $dotnet) {
     Fail ("Building needs the .NET SDK: https://dotnet.microsoft.com/download`n" +
           "(or: winget install Microsoft.DotNet.SDK.8). Then run this again.")
   }
-  $project = Join-Path $PSScriptRoot "$PluginName\$PluginName.csproj"
   Write-Host 'Building from source ...'
   & $dotnet.Source build $project -c Release -nologo -v:q "-p:TaleSpirePath=$GamePath" -p:DeployToGame=false
   if ($LASTEXITCODE -ne 0) { Fail 'Build failed (see above).' }
