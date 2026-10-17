@@ -3,6 +3,8 @@
 //! exports into (Documents/TaleSpireMapExporter, the mod's default ExportFolder), so the
 //! GM never has to hunt for files.
 
+mod mod_installer;
+
 use std::fs;
 use std::path::PathBuf;
 use std::time::UNIX_EPOCH;
@@ -94,14 +96,68 @@ fn open_exports_folder(app: tauri::AppHandle) -> Result<(), String> {
         .map_err(|e| format!("Couldn't open {}: {e}", dir.display()))
 }
 
+// --- TaleSpire mod installer (see mod_installer.rs) ---------------------------------------
+
+/// Auto-detected TaleSpire folder (searches every Steam library), if any.
+#[tauri::command]
+fn talespire_detect() -> Option<String> {
+    mod_installer::detect().map(|p| p.display().to_string())
+}
+
+#[tauri::command]
+fn talespire_status(app: tauri::AppHandle, path: String) -> Result<mod_installer::ModStatus, String> {
+    let bundled = mod_installer::bundled_mod_dir(&app)?;
+    Ok(mod_installer::status(&bundled, &mod_installer::normalize(&path)))
+}
+
+/// Native folder picker for the TaleSpire folder. Async so the blocking dialog stays off the
+/// main thread.
+#[tauri::command]
+async fn talespire_pick(app: tauri::AppHandle) -> Option<String> {
+    use tauri_plugin_dialog::DialogExt;
+    let mut dialog = app.dialog().file().set_title("Select your TaleSpire folder");
+    if let Some(dir) = mod_installer::default_browse_dir() {
+        dialog = dialog.set_directory(dir);
+    }
+    let picked = dialog.blocking_pick_folder()?;
+    let path = picked.into_path().ok()?;
+    Some(mod_installer::normalize(&path.display().to_string()).display().to_string())
+}
+
+/// Downloads BepInEx if needed and installs the bundled plugin. Runs on a worker thread
+/// (it downloads), so the window stays responsive.
+#[tauri::command]
+async fn talespire_install(app: tauri::AppHandle, path: String) -> Result<mod_installer::InstallReport, String> {
+    let game = mod_installer::normalize(&path);
+    let bundled = mod_installer::bundled_mod_dir(&app)?;
+    tauri::async_runtime::spawn_blocking(move || mod_installer::install(&bundled, &game))
+        .await
+        .map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+async fn talespire_uninstall(app: tauri::AppHandle, path: String) -> Result<mod_installer::InstallReport, String> {
+    let game = mod_installer::normalize(&path);
+    let bundled = mod_installer::bundled_mod_dir(&app)?;
+    tauri::async_runtime::spawn_blocking(move || mod_installer::uninstall(&bundled, &game))
+        .await
+        .map_err(|e| e.to_string())?
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![
             list_exports,
             read_export,
             save_map_file,
-            open_exports_folder
+            open_exports_folder,
+            talespire_detect,
+            talespire_status,
+            talespire_pick,
+            talespire_install,
+            talespire_uninstall
         ])
         .run(tauri::generate_context!())
         .expect("error while running TaleSpire Map Viewer");

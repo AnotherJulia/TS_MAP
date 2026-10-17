@@ -20,79 +20,82 @@
   .note { border-left:3px solid var(--amber); padding:6px 12px; background:rgba(255,207,74,.07); border-radius:0 6px 6px 0; margin:12px 0; }
   .note b { color:var(--amber); }
   table { border-collapse: collapse; width:100%; font-size:15px; } td, th { text-align:left; padding:6px 8px; border-bottom:1px solid var(--border); vertical-align:top; }
-  a { color: var(--cyan); }
+  details { margin-top: 8px; } summary { cursor: pointer; color: var(--cyan); }
 </style>
 </head>
 <body>
 <main>
   <h1>TaleSpire Map Tools</h1>
-  <p class="sub">Install on Windows 10/11 (64-bit). Two parts, about 5 minutes, once per PC.</p>
+  <p class="sub">Install on Windows 10/11 (64-bit). About 5 minutes, once per PC.</p>
 
-  <p>This package has two parts:</p>
-  <ul>
-    <li><b>1 · TaleSpire mod</b>: runs inside TaleSpire and exports the board you're on with
-      <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>E</kbd>.</li>
-    <li><b>2 · Viewer app</b>: opens those exports. You can shape the map, explore it as a map or as
-      Cyberpunk-style netspace, walk a token on the grid, and keep notes.</li>
-  </ul>
-  <div class="note"><b>First:</b> right-click the downloaded <code>.zip</code> → <b>Extract All…</b>.
-    The installers don't work from inside the zip.</div>
+  <p>You install one app, <b>TaleSpire Map Viewer</b>. It then installs its companion
+    <b>TaleSpire mod</b> for you. The mod adds <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>E</kbd> to
+    TaleSpire to export the board you're on. The app lets you shape that map, explore it (as a map or
+    as Cyberpunk-style netspace), walk a token on the grid, and keep notes.</p>
+  <div class="note"><b>First:</b> right-click the downloaded <code>.zip</code> → <b>Extract All…</b>.</div>
 
-  <h2><span class="n">1</span> Install the TaleSpire mod</h2>
+  <h2><span class="n">1</span> Install the app</h2>
+  <section>
+    <ol>
+      <li>Open the <b>1 - Viewer app</b> folder and double-click <code>TaleSpire Map Viewer_…_x64-setup.exe</code>.</li>
+      <li>If Windows shows <b>"Windows protected your PC"</b>, click <b>More info → Run anyway</b>. The app
+        isn't signed with a paid certificate, so SmartScreen doesn't recognise it.</li>
+      <li>Follow the installer. It installs just for you, so no admin rights are needed. It adds a Start-menu
+        entry and installs Microsoft WebView2 if your PC doesn't have it yet.</li>
+    </ol>
+  </section>
+
+  <h2><span class="n">2</span> Install the TaleSpire mod, from the app</h2>
   <section>
     <ol>
       <li><b>Close TaleSpire</b> if it's running.</li>
-      <li>Open the <b>1 - TaleSpire mod</b> folder and <b>double-click <code>Install mod.bat</code></b>.
-        <div class="note"><b>If Windows shows "Windows protected your PC":</b> click <b>More info → Run anyway</b>.
-          The installer isn't signed with a paid certificate, so SmartScreen doesn't recognise it.</div>
-      </li>
-      <li>The installer finds TaleSpire in your Steam libraries (any drive), installs BepInEx (the mod
-        loader, downloaded and checked), and installs the mod. It ends with <b>Done!</b>; press any key to close it.</li>
-      <li>Start TaleSpire from Steam as usual. On Windows there's <b>nothing to set in Steam</b>.</li>
+      <li>In the app, click <b>Install TaleSpire mod</b> (on the start screen, or <b>TaleSpire mod…</b>
+        in the side panel).</li>
+      <li>It finds TaleSpire in your Steam libraries on any drive (<b>Detect</b>). If it can't, use
+        <b>Browse…</b> and pick the <span class="path">TaleSpire</span> folder, the one with
+        <code>TaleSpire.exe</code> (Steam → right-click TaleSpire → Manage → Browse local files shows it).</li>
+      <li>Click <b>Install mod</b>. The app downloads the mod loader (BepInEx, checked), installs it, and
+        installs the mod. Every line turns ✓.</li>
     </ol>
-    <div class="note"><b>If TaleSpire isn't found automatically,</b> open PowerShell in the mod folder and pass the game folder:
-      <pre>.\install-windows.ps1 -GamePath "D:\SteamLibrary\steamapps\common\TaleSpire"</pre>
-      (Steam → right-click TaleSpire → Manage → Browse local files shows the folder.)</div>
+    <p>On Windows there's <b>nothing to set in Steam</b>: start TaleSpire as usual.</p>
     <div class="note"><b>Using r2modman or Thunderstore?</b> Those run mods from your r2modman profile. After
-      installing, copy <code>BepInEx\plugins\TaleSpireMapExporter</code> from the game folder into the
+      installing, copy <code>BepInEx\plugins\TaleSpireMapExporter</code> from the TaleSpire folder into the
       profile's <code>BepInEx\plugins</code> folder.</div>
-  </section>
-
-  <h2><span class="n">2</span> Install the viewer app</h2>
-  <section>
-    <ol>
-      <li>Open the <b>2 - Viewer app</b> folder and double-click <code>TaleSpire Map Viewer_…_x64-setup.exe</code>.</li>
-      <li>If SmartScreen appears, click <b>More info → Run anyway</b> (same reason as above).</li>
-      <li>Follow the installer. It installs just for you, so no admin rights are needed, and adds a
-        Start-menu entry. If your PC doesn't have Microsoft WebView2 yet, the installer adds it.</li>
-    </ol>
   </section>
 
   <h2><span class="n">3</span> Use it</h2>
   <section>
     <ol>
-      <li>In TaleSpire, open a board and press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>E</kbd>. A message at the
-        top of the screen confirms the export. To export only part of the board, select that area with
+      <li>Start TaleSpire, open a board, and press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>E</kbd>. A message at
+        the top of the screen confirms the export. To export only part of the board, select that area with
         TaleSpire's selection tool first.</li>
-      <li>In the viewer, click <b>Open latest export</b>.</li>
+      <li>In the app, click <b>Open latest export</b>.</li>
       <li>Tools: <b>1</b> look · <b>2</b> select and remove pieces · <b>3</b> token (click floors to walk;
         <b>V</b> for first person) · <b>4</b> notes. Use <b>G</b> to switch styles, including Cyberspace.
         <b>WASD</b>/<b>Q E</b>/<b>R F</b> move the camera.</li>
     </ol>
+    <p>When you get a newer version of the app, open <b>TaleSpire mod…</b> and click <b>Update mod</b>.</p>
   </section>
 
   <h2><span class="n">?</span> If something doesn't work</h2>
   <section>
     <table>
       <tr><th>Problem</th><th>Fix</th></tr>
-      <tr><td>Ctrl+Shift+E does nothing</td><td>In the game folder, <code>BepInEx\LogOutput.log</code> should contain
-        "TaleSpire Map Exporter … loaded". No log at all means BepInEx isn't loading: check that <code>winhttp.dll</code>
-        is next to <code>TaleSpire.exe</code> (antivirus sometimes removes it), then run <code>Install mod.bat</code> again.</td></tr>
+      <tr><td>Ctrl+Shift+E does nothing</td><td>Open <b>TaleSpire mod…</b> in the app: every line should show ✓.
+        In the TaleSpire folder, <code>BepInEx\LogOutput.log</code> should contain "TaleSpire Map Exporter …
+        loaded". No log at all means the loader isn't starting: check <code>winhttp.dll</code> is next to
+        <code>TaleSpire.exe</code> (antivirus sometimes removes it), then click <b>Reinstall mod</b>.</td></tr>
       <tr><td>Where are the exports?</td><td><span class="path">Documents\TaleSpireMapExporter</span>
-        (the viewer's <b>Show exports folder</b> button opens it)</td></tr>
-      <tr><td>Remove the mod</td><td>In PowerShell in the mod folder: <code>.\install-windows.ps1 -Uninstall</code>
-        (add <code>-RemoveBepInEx</code> to remove the loader too). Remove the viewer from <b>Settings → Apps</b>.</td></tr>
+        (the app's <b>Show exports folder</b> button opens it)</td></tr>
+      <tr><td>Remove</td><td>The mod: <b>TaleSpire mod… → Remove mod</b>. The app: <b>Settings → Apps</b>.</td></tr>
     </table>
+    <details>
+      <summary>Installing the mod without the app</summary>
+      <p>The <b>Manual mod install (optional)</b> folder has an installer that does the same thing: close
+        TaleSpire and double-click <code>Install mod.bat</code> (if SmartScreen appears: More info → Run anyway).
+        If it can't find TaleSpire, run <code>.\install-windows.ps1 -GamePath "D:\…\TaleSpire"</code> in
+        PowerShell from that folder.</p>
+    </details>
   </section>
 </main>
 </body>

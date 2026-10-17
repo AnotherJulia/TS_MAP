@@ -8,6 +8,13 @@ The app adds:
 - saving "map + notes" and "shaped" files straight into that folder
 - **Show exports folder** (Finder / Explorer)
 
+- **Install TaleSpire mod** (`viewer/js/mod-panel.js` + `src-tauri/src/mod_installer.rs`): detects
+  TaleSpire across Steam libraries, or lets you pick the folder. It shows BepInEx, mod-version and (on
+  macOS) Steam launch-option status, then downloads and verifies BepInEx and installs the plugin
+  bundled with the app. The plugin comes from `mod/dist` via `bundle.resources` in
+  `tauri.conf.json`, so run `mod/build-dist.sh` before building the app if the mod changed.
+  `cargo test` (in `src-tauri`) runs a real install into a throwaway folder.
+
 Those commands are in `src-tauri/src/lib.rs`. They only accept plain `*.json` file names inside the
 export folder, never paths, so the page can't read or write anywhere else.
 

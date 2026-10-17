@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "TaleSpire Map Viewer",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "identifier": "com.jsbertsch.talespire-map-viewer",
   "build": {
     "frontendDist": "../../viewer"
@@ -46,6 +46,10 @@
       "nsis": {
         "installMode": "currentUser"
       }
+    },
+    "resources": {
+      "../../mod/dist/TaleSpireMapExporter.dll": "mod/TaleSpireMapExporter.dll",
+      "../../mod/dist/manifest.json": "mod/manifest.json"
     }
   }
 }

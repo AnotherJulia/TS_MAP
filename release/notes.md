@@ -8,30 +8,25 @@ Export TaleSpire boards with one key, then shape and explore them in the **TaleS
 
 ### Download
 
-Pick your platform. Each zip has everything, in order:
+Pick your platform. Each zip has everything, plus a step-by-step **How to install.html**:
 
 | | Download |
 |---|---|
 | **macOS** (Apple Silicon and Intel) | `TaleSpire-Map-Tools-macOS-v….zip` |
 | **Windows 10/11** (64-bit) | `TaleSpire-Map-Tools-Windows-v….zip` |
 
-Inside:
-```
-How to install.html      <- open this first
-1 - TaleSpire mod/       <- run the installer (installs BepInEx + the mod into TaleSpire)
-2 - Viewer app/          <- install the app (.dmg on macOS, setup .exe on Windows)
-```
+### Install in two steps
+1. **Install the app** from `1 - Viewer app` (the `.dmg` on macOS, the setup `.exe` on Windows).
+2. In the app, click **Install TaleSpire mod**. It finds TaleSpire, or you pick the folder, then
+   installs the mod loader and the mod. **macOS only:** paste the Steam launch option it shows, once.
 
-**Quick version.**
-- **Windows:** extract the zip, close TaleSpire, double-click `1 - TaleSpire mod/Install mod.bat`, then run
-  the setup in `2 - Viewer app`.
-- **macOS:** right-click `1 - TaleSpire mod/Install mod.command` and choose Open, then paste the Steam launch
-  option it prints. Drag the app from the `.dmg` into Applications.
+The app isn't signed with a paid certificate.
+- Windows SmartScreen asks you to click **More info → Run anyway**.
+- macOS says *"Apple could not verify…"*. Allow it once in **System Settings → Privacy & Security →
+  Open Anyway**.
 
-The installers and app aren't signed with paid certificates. Windows SmartScreen asks you to click
-**More info → Run anyway**, and macOS asks you to **right-click → Open** the first time. *How to
-install.html* walks through it.
+Prefer not to use the app for the mod? `Manual mod install (optional)` has script installers.
 
 ### Using it
 In TaleSpire, press **Ctrl+Shift+E** to export the board. If you've selected an area with TaleSpire's
-selection tool first, only that area is exported. In the viewer, click **Open latest export**.
+selection tool first, only that area is exported. In the app, click **Open latest export**.

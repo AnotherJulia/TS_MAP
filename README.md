@@ -14,8 +14,9 @@ The viewer draws the board's *shapes* (boxes from TaleSpire's own bounds), not T
 models.
 
 **Setting up? → [docs/INSTALL.md](docs/INSTALL.md)**
-In short: on Windows, double-click `mod/install-windows.bat`. On macOS, run `mod/install-mac.sh`
-and set the Steam launch option it prints.
+In short: install the **TaleSpire Map Viewer** app from the Releases page, then click **Install
+TaleSpire mod** in it. It finds TaleSpire and installs everything. On macOS, also paste the Steam
+launch option it shows.
 
 ## Using it
 

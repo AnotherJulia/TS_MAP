@@ -7,6 +7,7 @@ import { buildWalkGrid, surfacesAt, findPath, step } from "./js/grid.js";
 import { TaleSpireControls, isTyping } from "./js/controls.js";
 import { createNetspaceMaterial } from "./js/netspace-material.js";
 import { createCyberspace } from "./js/cyberspace.js";
+import { initModPanel } from "./js/mod-panel.js";
 
 // Present only inside the desktop app (tauri.conf.json: withGlobalTauri). The viewer
 // still runs as a plain web page without it.
@@ -1692,6 +1693,12 @@ if (tauri) {
     tauri.core.invoke("open_exports_folder").catch((err) => showToast(String(err), { error: true }));
   });
   recentEl.addEventListener("change", () => recentEl.value && openExport(recentEl.value));
+
+  // Install / update the exporter mod from inside the app (js/mod-panel.js).
+  const modPanel = initModPanel({ tauri, showToast });
+  document.getElementById("open-mod-panel").addEventListener("click", modPanel.open);
+  document.getElementById("welcome-mod").addEventListener("click", modPanel.open);
+  modPanel.checkOnStartup();
   refreshExports({ announce: false });
   setInterval(() => refreshExports({ announce: true }), 3000);
 }

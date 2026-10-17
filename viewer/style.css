@@ -665,3 +665,90 @@ body.first-person #hud-stack:hover { opacity: 1; }
 
 .cyber-only { display: none !important; }
 body.cyber .cyber-only { display: flex !important; }
+
+/* ---- TaleSpire mod panel (desktop app) ---- */
+#mod-panel {
+  position: fixed;
+  z-index: 35;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(620px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  padding: 20px 24px 22px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+#mod-panel.hidden { display: none; }
+.mod-intro { margin: 0 0 14px; color: var(--muted); }
+.mod-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.mod-path-row, .mod-launch-row { display: flex; gap: 6px; align-items: stretch; }
+#mod-path {
+  flex: 1;
+  min-width: 0;
+  font: 12px ui-monospace, Menlo, Consolas, monospace;
+  color: var(--text);
+  background: var(--field-bg);
+  border: 1px solid var(--border-soft);
+  padding: 7px 9px;
+}
+#mod-path:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 10px var(--glow); }
+#mod-panel button {
+  font-family: var(--hud-font);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 7px 12px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  background: rgba(0, 230, 255, 0.05);
+  color: var(--cyan);
+  flex: none;
+}
+#mod-panel button:hover:not(:disabled) { box-shadow: 0 0 12px var(--glow); }
+#mod-panel button.primary { background: var(--cyan); border-color: var(--cyan); color: var(--bg); }
+#mod-panel button:disabled { opacity: 0.4; cursor: default; }
+#mod-status { list-style: none; margin: 14px 0 4px; padding: 0; }
+#mod-status li { padding: 3px 0 3px 22px; position: relative; }
+#mod-status li::before { position: absolute; left: 0; font-weight: 700; }
+#mod-status li.ok::before { content: "✓"; color: #5dffb0; }
+#mod-status li.todo::before { content: "•"; color: var(--cyan); }
+#mod-status li.warn::before { content: "!"; color: var(--amber); }
+#mod-status li.bad::before { content: "✗"; color: var(--magenta); }
+#mod-launch { margin-top: 10px; padding: 10px 12px; border: 1px solid rgba(255, 207, 74, 0.45); background: rgba(255, 207, 74, 0.06); }
+#mod-launch.hidden { display: none; }
+#mod-launch p { margin: 0 0 8px; }
+#mod-launch-text {
+  flex: 1;
+  min-width: 0;
+  font: 12px ui-monospace, Menlo, Consolas, monospace;
+  color: var(--cyan-soft);
+  background: var(--field-bg);
+  border: 1px solid var(--border-soft);
+  padding: 6px 8px;
+  word-break: break-all;
+  user-select: all;
+}
+#mod-log {
+  margin: 12px 0 0;
+  padding: 8px 10px;
+  max-height: 160px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  font: 12px ui-monospace, Menlo, Consolas, monospace;
+  color: var(--text);
+  background: var(--field-bg);
+  border: 1px solid var(--border-soft);
+}
+#mod-log.hidden { display: none; }
+#mod-log.error { color: #ff9ab8; border-color: rgba(255, 46, 136, 0.5); }

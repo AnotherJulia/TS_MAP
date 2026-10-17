@@ -20,82 +20,86 @@
   .note { border-left:3px solid var(--amber); padding:6px 12px; background:rgba(255,207,74,.07); border-radius:0 6px 6px 0; margin:12px 0; }
   .note b { color:var(--amber); }
   table { border-collapse: collapse; width:100%; font-size:15px; } td, th { text-align:left; padding:6px 8px; border-bottom:1px solid var(--border); vertical-align:top; }
-  a { color: var(--cyan); }
+  details { margin-top: 8px; } summary { cursor: pointer; color: var(--cyan); }
 </style>
 </head>
 <body>
 <main>
   <h1>TaleSpire Map Tools</h1>
-  <p class="sub">Install on macOS (Apple Silicon and Intel). Two parts, about 5 minutes, once per Mac.</p>
+  <p class="sub">Install on macOS (Apple Silicon and Intel). About 5 minutes, once per Mac.</p>
 
-  <p>This package has two parts:</p>
-  <ul>
-    <li><b>1 · TaleSpire mod</b>: runs inside TaleSpire and exports the board you're on with
-      <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>E</kbd>.</li>
-    <li><b>2 · Viewer app</b>: opens those exports. You can shape the map, explore it as a map or as
-      Cyberpunk-style netspace, walk a token on the grid, and keep notes.</li>
-  </ul>
+  <p>You install one app, <b>TaleSpire Map Viewer</b>. It then installs its companion
+    <b>TaleSpire mod</b> for you. The mod adds <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>E</kbd> to
+    TaleSpire to export the board you're on. The app lets you shape that map, explore it (as a map or
+    as Cyberpunk-style netspace), walk a token on the grid, and keep notes.</p>
 
-  <h2><span class="n">1</span> Install the TaleSpire mod</h2>
+  <h2><span class="n">1</span> Install the app</h2>
   <section>
     <ol>
-      <li><b>Quit TaleSpire</b> if it's running.</li>
-      <li>Open the <b>1 - TaleSpire mod</b> folder, <b>right-click <code>Install mod.command</code> → Open</b>,
-        then click <b>Open</b> again.
-        <div class="note"><b>Why right-click?</b> The installer isn't signed by an Apple developer, so a
-          plain double-click is blocked the first time. Right-click → Open lets you allow it.</div>
-      </li>
-      <li>A Terminal window runs the installer. It downloads BepInEx (the mod loader) into TaleSpire's
-        game folder, checks it, and installs the mod. At the end it prints one line to copy, like:
-        <pre>"/Users/you/Library/Application Support/Steam/steamapps/common/TaleSpire/run_bepinex.sh" %command%</pre>
-      </li>
-      <li>In <b>Steam</b>, right-click <b>TaleSpire → Properties → General → Launch Options</b> and paste that line.
-        You only do this once.</li>
-      <li>Start TaleSpire from Steam as usual.</li>
+      <li>Open the <b>1 - Viewer app</b> folder and double-click the <code>.dmg</code>.</li>
+      <li>Drag <b>TaleSpire Map Viewer</b> into <b>Applications</b>, then open it.</li>
+      <li>The first time, macOS says it <b>"could not verify"</b> the app, because it isn't notarized by
+        Apple. Click <b>Done</b>, then open <b>System Settings → Privacy &amp; Security</b>, scroll down,
+        click <b>Open Anyway</b> next to "TaleSpire Map Viewer was blocked", and confirm. You only do
+        this once.</li>
     </ol>
-    <div class="note"><b>Apple Silicon:</b> the launcher starts TaleSpire through Rosetta (as an Intel app),
-      because the mod loader can't run in native Apple Silicon games. It runs a little slower but works.
-      If macOS asks to install Rosetta, say yes.</div>
+    <div class="note"><b>Shortcut:</b> instead of the Settings steps, run this once in Terminal, then open
+      the app (this also fixes a "the app is damaged" message):
+      <pre>xattr -dr com.apple.quarantine "/Applications/TaleSpire Map Viewer.app"</pre></div>
   </section>
 
-  <h2><span class="n">2</span> Install the viewer app</h2>
+  <h2><span class="n">2</span> Install the TaleSpire mod, from the app</h2>
   <section>
     <ol>
-      <li>Open the <b>2 - Viewer app</b> folder and double-click the <code>.dmg</code>.</li>
-      <li>Drag <b>TaleSpire Map Viewer</b> into <b>Applications</b>.</li>
-      <li>The first time, <b>right-click the app in Applications → Open → Open</b> (it isn't signed by an
-        Apple developer either). After that it opens normally.</li>
+      <li>In the app, click <b>Install TaleSpire mod</b> (on the start screen, or <b>TaleSpire mod…</b>
+        in the side panel).</li>
+      <li>It finds your TaleSpire install automatically (<b>Detect</b>). If you keep games somewhere
+        unusual, use <b>Browse…</b> and pick the <span class="path">TaleSpire</span> folder (Steam →
+        right-click TaleSpire → Manage → Browse local files shows where it is).</li>
+      <li>Click <b>Install mod</b>. The app downloads the mod loader (BepInEx, checked), sets it up, and
+        installs the mod.</li>
+      <li><b>One step in Steam:</b> click <b>Copy</b> next to the launch option the app shows. In Steam,
+        right-click <b>TaleSpire → Properties → General → Launch Options</b>, paste, and close the window.
+        The app shows a ✓ once Steam has it.</li>
     </ol>
-    <div class="note"><b>If macOS says the app "is damaged" or can't be opened,</b> run this once in
-      Terminal, then open it again:
-      <pre>xattr -dr com.apple.quarantine "/Applications/TaleSpire Map Viewer.app"</pre></div>
+    <div class="note"><b>Apple Silicon:</b> with the mod, TaleSpire starts through Rosetta (as an Intel
+      app), because the mod loader can't run in native Apple Silicon games. It runs a little slower but
+      works. If macOS asks to install Rosetta, say yes.</div>
   </section>
 
   <h2><span class="n">3</span> Use it</h2>
   <section>
     <ol>
-      <li>In TaleSpire, open a board and press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>E</kbd> (the
-        <b>Control</b> key, not Command). A message at the top of the screen confirms the export.
+      <li>Start TaleSpire from Steam, open a board, and press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>E</kbd>
+        (the <b>Control</b> key, not Command). A message at the top of the screen confirms the export.
         To export only part of the board, select that area with TaleSpire's selection tool first.</li>
-      <li>In the viewer, click <b>Open latest export</b>.</li>
+      <li>In the app, click <b>Open latest export</b>.</li>
       <li>Tools: <b>1</b> look · <b>2</b> select and remove pieces · <b>3</b> token (click floors to walk;
         <b>V</b> for first person) · <b>4</b> notes. Use <b>G</b> to switch styles, including Cyberspace.
         <b>WASD</b>/<b>Q E</b>/<b>R F</b> move the camera.</li>
     </ol>
+    <p>When you get a newer version of the app, open <b>TaleSpire mod…</b> and click <b>Update mod</b>.</p>
   </section>
 
   <h2><span class="n">?</span> If something doesn't work</h2>
   <section>
     <table>
       <tr><th>Problem</th><th>Fix</th></tr>
-      <tr><td>Ctrl+Shift+E does nothing</td><td>Check the Steam launch option, and start TaleSpire from
-        <b>Steam</b>. In the game folder, <code>BepInEx/LogOutput.log</code> should contain
-        "TaleSpire Map Exporter … loaded". If it doesn't, run <code>Install mod.command</code> again.</td></tr>
+      <tr><td>Ctrl+Shift+E does nothing</td><td>Open <b>TaleSpire mod…</b> in the app: every line should show ✓.
+        Make sure you start TaleSpire from <b>Steam</b> (the launch option only applies there). In the game
+        folder, <code>BepInEx/LogOutput.log</code> should contain "TaleSpire Map Exporter … loaded".</td></tr>
+      <tr><td>"Apple could not verify…"</td><td>That's macOS blocking unsigned downloads. Use
+        <b>System Settings → Privacy &amp; Security → Open Anyway</b> (or the Terminal shortcut in step 1).</td></tr>
       <tr><td>Where are the exports?</td><td><span class="path">Documents/TaleSpireMapExporter</span>
-        (the viewer's <b>Show exports folder</b> button opens it)</td></tr>
-      <tr><td>Find the game folder</td><td>Steam → right-click TaleSpire → Manage → Browse local files</td></tr>
-      <tr><td>Remove the mod</td><td>Clear the Steam launch option. TaleSpire then starts without mods.</td></tr>
+        (the app's <b>Show exports folder</b> button opens it)</td></tr>
+      <tr><td>Remove the mod</td><td><b>TaleSpire mod… → Remove mod</b>, and clear the Steam launch option.</td></tr>
     </table>
+    <details>
+      <summary>Installing the mod without the app</summary>
+      <p>The <b>Manual mod install (optional)</b> folder has a script that does the same thing. Open Terminal,
+        type <code>bash</code> and a space, drag <code>install-mac.sh</code> from that folder into the window,
+        and press Return. Then paste the Steam launch option it prints, as in step 2.</p>
+    </details>
   </section>
 </main>
 </body>

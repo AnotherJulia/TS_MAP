@@ -41,6 +41,12 @@ Rotation is a Y-axis rotation in 24 steps of 15 deg (`DataModel.AssetMath`); the
 as a quaternion. Positions are world-space (`Placeable.WorldOrigin`); `SelectionBounds.size` gives a
 per-object AABB you can extrude a box mesh from in the viewer.
 
+## Installing
+
+The easiest way is the viewer app's **Install TaleSpire mod** button (`app/src-tauri/src/mod_installer.rs`).
+It does the same as the scripts below: finds TaleSpire, installs BepInEx (on macOS with the Rosetta
+launcher), and copies in the plugin from `dist/`. The scripts remain for installing without the app.
+
 ## Install on macOS (native TaleSpire build)
 
 TaleSpire's Mac version is a native Unity/Mono app, and its code signature allows library

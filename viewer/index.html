@@ -36,6 +36,8 @@
   <div id="welcome" class="hud">
     <h1>Load a TaleSpire map</h1>
     <ol>
+      <li class="app-only">First time? Click <em>Install TaleSpire mod</em> below. It sets up the
+          exporter in TaleSpire for you.</li>
       <li>In TaleSpire, open your board and press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>E</kbd>.
           To export only part of the board, select that area with TaleSpire's selection tool
           first.</li>
@@ -48,6 +50,7 @@
     </ol>
     <div id="welcome-actions">
       <button id="welcome-open-latest" type="button" class="primary app-only">Open latest export</button>
+      <button id="welcome-mod" type="button" class="app-only">Install TaleSpire mod</button>
       <button id="load-sample" type="button">Try the sample map</button>
     </div>
   </div>
@@ -63,6 +66,7 @@
         <button id="open-latest" type="button" class="primary">Open latest export</button>
         <select id="recent-exports" aria-label="Recent exports"></select>
         <button id="open-folder" type="button">Show exports folder</button>
+        <button id="open-mod-panel" type="button" title="Install or update the exporter mod in TaleSpire">TaleSpire mod…</button>
       </div>
       <label id="file-picker">
         Load export…
@@ -191,6 +195,35 @@
   </div>
 
   <div id="toast" role="status" aria-live="polite"></div>
+
+  <!-- Desktop app only: install / update the exporter mod (js/mod-panel.js). -->
+  <div id="mod-panel" class="hud hidden" role="dialog" aria-labelledby="mod-title">
+    <h1 id="mod-title">TaleSpire mod</h1>
+    <p class="mod-intro">The mod adds <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>E</kbd> to TaleSpire, which
+      exports the board for this viewer. Install it once; update it here when the app updates.</p>
+    <label for="mod-path" class="mod-label">TaleSpire folder</label>
+    <div class="mod-path-row">
+      <input id="mod-path" type="text" spellcheck="false" autocomplete="off"
+             placeholder="…/steamapps/common/TaleSpire" />
+      <button id="mod-detect" type="button" title="Search your Steam libraries">Detect</button>
+      <button id="mod-browse" type="button">Browse…</button>
+    </div>
+    <ul id="mod-status"></ul>
+    <div id="mod-launch" class="hidden">
+      <p>One-time step in Steam: right-click <b>TaleSpire → Properties → General → Launch Options</b>
+        and paste this (it starts TaleSpire with the mod loader):</p>
+      <div class="mod-launch-row">
+        <code id="mod-launch-text"></code>
+        <button id="mod-copy" type="button">Copy</button>
+      </div>
+    </div>
+    <div class="button-row">
+      <button id="mod-install" type="button" class="primary">Install mod</button>
+      <button id="mod-remove" type="button">Remove mod</button>
+      <button id="mod-close" type="button">Close</button>
+    </div>
+    <pre id="mod-log" class="hidden"></pre>
+  </div>
 
   <!-- Floating info card for a location. Positioned in screen space each frame
        from the anchor point above its building (see updateCard in main.js). -->

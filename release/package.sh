@@ -19,8 +19,9 @@ esac
 
 NAME="TaleSpire-Map-Tools-$LABEL-v$VERSION"
 STAGE="$OUT/$NAME"
-MOD="$STAGE/1 - TaleSpire mod"
-VIEWER="$STAGE/2 - Viewer app"
+# The app installs the mod itself ("Install TaleSpire mod"); the scripts are a fallback.
+VIEWER="$STAGE/1 - Viewer app"
+MOD="$STAGE/Manual mod install (optional)"
 rm -rf "$STAGE" "$OUT/$NAME.zip"
 mkdir -p "$MOD/dist" "$VIEWER"
 
@@ -33,7 +34,8 @@ if [ "$PLATFORM" = macos ]; then
   cat > "$MOD/Install mod.command" <<'CMD'
 #!/bin/bash
 # Installs the TaleSpire Map Exporter mod (BepInEx + plugin).
-# First time: right-click -> Open (the script isn't signed by an Apple developer).
+# Not notarized: if macOS blocks it, use System Settings > Privacy & Security > Open Anyway,
+# or run `bash install-mac.sh` in Terminal instead.
 cd "$(dirname "$0")"
 bash ./install-mac.sh
 echo
