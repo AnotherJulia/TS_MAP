@@ -12,7 +12,14 @@ namespace TaleSpireMapExporter
             var sb = new StringBuilder();
             sb.Append('{');
             WriteProperty(sb, "boardName", root.boardName);
+            WriteProperty(sb, "boardId", root.boardId);
+            WriteProperty(sb, "exporterVersion", root.exporterVersion);
             WriteProperty(sb, "exportedAt", root.exportedAt);
+            if (root.selectionMin.HasValue && root.selectionMax.HasValue)
+            {
+                sb.Append("\"selection\":{\"min\":"); WriteVec3(sb, root.selectionMin.Value);
+                sb.Append(",\"max\":"); WriteVec3(sb, root.selectionMax.Value); sb.Append("},");
+            }
 
             sb.Append("\"objects\":[");
             for (int i = 0; i < root.objects.Count; i++)
@@ -33,6 +40,7 @@ namespace TaleSpireMapExporter
             WriteProperty(sb, "name", obj.name);
             WriteProperty(sb, "category", obj.category);
             sb.Append("\"position\":"); WriteVec3(sb, obj.position); sb.Append(',');
+            if (obj.origin.HasValue) { sb.Append("\"origin\":"); WriteVec3(sb, obj.origin.Value); sb.Append(','); }
             sb.Append("\"rotation\":"); WriteQuat(sb, obj.rotation); sb.Append(',');
             sb.Append("\"size\":"); WriteVec3(sb, obj.size);
             sb.Append('}');

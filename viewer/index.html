@@ -7,13 +7,51 @@
   <script type="importmap">
     {
       "imports": {
-        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        "three": "./vendor/three/three.module.js",
+        "three/addons/": "./vendor/three/addons/"
       }
     }
   </script>
 </head>
 <body>
+  <!-- Plain (non-module) script: ES modules don't load from file://, so if the page was
+       double-clicked open, main.js never runs. Explain how to open it instead of showing a
+       blank screen. -->
+  <script>
+    if (location.protocol === "file:") {
+      document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("file-warning").classList.add("visible");
+      });
+    }
+  </script>
+  <div id="file-warning" class="hud">
+    <h1>Open the viewer with the launcher</h1>
+    <p>Browsers block this page when it's opened straight from a file.</p>
+    <p>Install the <strong>TaleSpire Map Viewer</strong> app, or on a Mac double-click
+       <code>open-viewer.command</code> in the TS_MAP folder. Anywhere else, run
+       <code>python3 -m http.server 8765</code> in the TS_MAP folder and visit
+       <code>http://localhost:8765/viewer/</code>.</p>
+  </div>
+
+  <div id="welcome" class="hud">
+    <h1>Load a TaleSpire map</h1>
+    <ol>
+      <li>In TaleSpire, open your board and press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>E</kbd>.
+          To export only part of the board, select that area with TaleSpire's selection tool
+          first.</li>
+      <li class="web-only">Drag the new file from <code>Documents/TaleSpireMapExporter</code> onto
+          this window (or use <em>Load export…</em>).</li>
+      <li class="app-only">Click <em>Open latest export</em>. New exports also pop up a notice here
+          as soon as you make them.</li>
+      <li>Shape it: <em>Select</em> and remove walls or roofs, cut the sides and height, then
+          explore with the <em>Token</em>.</li>
+    </ol>
+    <div id="welcome-actions">
+      <button id="welcome-open-latest" type="button" class="primary app-only">Open latest export</button>
+      <button id="load-sample" type="button">Try the sample map</button>
+    </div>
+  </div>
+
   <div id="drop-overlay">
     <div id="drop-message">Drop a TaleSpire export JSON file here</div>
   </div>
@@ -21,20 +59,100 @@
   <div id="hud-stack">
     <div id="panel" class="hud">
       <h1>TaleSpire Map Viewer</h1>
+      <div class="app-only" id="app-actions">
+        <button id="open-latest" type="button" class="primary">Open latest export</button>
+        <select id="recent-exports" aria-label="Recent exports"></select>
+        <button id="open-folder" type="button">Show exports folder</button>
+      </div>
       <label id="file-picker">
         Load export…
         <input type="file" id="file-input" accept="application/json,.json" />
       </label>
       <div id="board-info"></div>
-      <label id="gm-toggle">
-        <input type="checkbox" id="gm-checkbox" />
-        <span>GM mode</span>
-      </label>
-      <div id="gm-hint">Click a building to add a location.</div>
+      <div class="button-row">
+        <button id="save-notes" type="button" title="Save the map with your notes, removals, cuts and token, to keep or share">Save map + notes</button>
+        <button id="export-shaped" type="button" title="Save only what's left after removing and cutting - the shaped part">Export shaped map</button>
+      </div>
+      <div id="notes-status"></div>
     </div>
 
-    <div id="tweak-panel" class="hud">
-      <h1>Tweaks</h1>
+    <div id="tools-panel" class="hud">
+      <h1>Tools</h1>
+      <div class="segmented" id="tool-buttons">
+        <button type="button" data-tool="look" title="Look around (1)">Look <kbd>1</kbd></button>
+        <button type="button" data-tool="select" title="Select and remove pieces (2)">Select <kbd>2</kbd></button>
+        <button type="button" data-tool="token" title="Move the token on the grid (3)">Token <kbd>3</kbd></button>
+        <button type="button" data-tool="notes" title="Add location notes (4)">Notes <kbd>4</kbd></button>
+      </div>
+      <div id="tool-help"></div>
+      <div class="cut-row style-row">
+        <label for="style-select">Style <kbd>G</kbd></label>
+        <select id="style-select">
+          <option value="map">Map</option>
+          <option value="wire">Wireframe grid</option>
+          <option value="cyber">Cyberspace (2077)</option>
+        </select>
+      </div>
+      <div class="cut-row cyber-only">
+        <label for="detail-slider" title="Speck size: right = finer">Detail</label>
+        <input type="range" id="detail-slider" min="0" max="1" step="0.01" />
+      </div>
+      <div class="toggle-row cyber-only">
+        <label class="check" title="Light from the ground up, fading toward the top"><input type="checkbox" id="light-below-toggle" /> <span>Light from below <kbd>B</kbd></span></label>
+      </div>
+      <div class="toggle-row">
+        <label class="check"><input type="checkbox" id="topdown-toggle" /> <span>Top-down <kbd>M</kbd></span></label>
+        <button id="reset-view" type="button" title="Frame the whole map (Home)">Reset view</button>
+      </div>
+    </div>
+
+    <div id="select-panel" class="hud tool-panel" data-for="select">
+      <h1>Selection</h1>
+      <div id="select-status" class="status-line">Nothing selected</div>
+      <div class="button-grid">
+        <button id="sel-remove" type="button" title="Delete / Backspace">Remove</button>
+        <button id="sel-keep" type="button" title="Remove everything that isn't selected">Keep only these</button>
+        <button id="sel-same" type="button" title="Add every piece of the same type (e.g. all of one roof)">Select same type</button>
+        <button id="sel-crop" type="button" title="Set the cut box around the selection">Cut to selection</button>
+        <button id="sel-undo" type="button" title="Ctrl/Cmd+Z">Undo</button>
+        <button id="sel-restore" type="button">Restore all</button>
+      </div>
+    </div>
+
+    <div id="cut-panel" class="hud">
+      <h1>Cut</h1>
+      <div class="cut-row"><label>Height top <kbd>[</kbd><kbd>]</kbd></label><input type="range" id="cut-ymax" step="0.25" /></div>
+      <div class="cut-row"><label>Height bottom</label><input type="range" id="cut-ymin" step="0.25" /></div>
+      <div class="cut-row"><label>West</label><input type="range" id="cut-xmin" step="1" /></div>
+      <div class="cut-row"><label>East</label><input type="range" id="cut-xmax" step="1" /></div>
+      <div class="cut-row"><label>North</label><input type="range" id="cut-zmin" step="1" /></div>
+      <div class="cut-row"><label>South</label><input type="range" id="cut-zmax" step="1" /></div>
+      <div class="button-row">
+        <button id="cut-reset" type="button">Reset cuts</button>
+        <label class="check"><input type="checkbox" id="cut-show" checked /> <span>Show box</span></label>
+      </div>
+    </div>
+
+    <div id="token-panel" class="hud tool-panel" data-for="token">
+      <h1>Token</h1>
+      <div id="token-status" class="status-line">Click a floor to place the token.</div>
+      <div class="cut-row">
+        <label for="token-unit">Square</label>
+        <select id="token-unit">
+          <option value="5ft">5 ft (D&amp;D)</option>
+          <option value="2m">2 m (Cyberpunk RED)</option>
+          <option value="1sq">1 square</option>
+        </select>
+      </div>
+      <div class="button-row">
+        <button id="token-reset" type="button">Reset count</button>
+        <button id="token-remove" type="button">Remove token</button>
+        <button id="token-fp" type="button" title="See through the token's eyes (V)">First person <kbd>V</kbd></button>
+      </div>
+    </div>
+
+    <details id="tweak-panel" class="hud">
+      <summary>Map style</summary>
       <div class="tweak-row">
         <label for="tweak-ground">Ground color</label>
         <input type="color" id="tweak-ground" />
@@ -59,10 +177,20 @@
         <label for="tweak-marker">Marker color</label>
         <input type="color" id="tweak-marker" />
       </div>
-    </div>
+    </details>
   </div>
 
   <canvas id="scene"></canvas>
+  <div id="marquee"></div>
+
+  <div id="controls-help" class="hud">
+    <span class="orbit-help"><kbd>WASD</kbd> move · <kbd>Q</kbd><kbd>E</kbd> rotate · <kbd>R</kbd><kbd>F</kbd> up/down ·
+    right-drag rotate · middle-drag pan · wheel zoom · <kbd>Shift</kbd> faster</span>
+    <span class="fp-help">First person: click a floor to walk there · drag to look · <kbd>WASD</kbd> step ·
+    <kbd>Q</kbd><kbd>E</kbd> turn · <kbd>PgUp</kbd><kbd>PgDn</kbd> change floor · <kbd>V</kbd>/<kbd>Esc</kbd> leave</span>
+  </div>
+
+  <div id="toast" role="status" aria-live="polite"></div>
 
   <!-- Floating info card for a location. Positioned in screen space each frame
        from the anchor point above its building (see updateCard in main.js). -->

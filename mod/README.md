@@ -6,7 +6,20 @@ exact file format.
 
 ## Status
 
-Builds and loads, and exports the **whole board** - creatures *and* tiles/walls/props.
+Builds and loads on Windows and native macOS (v0.3.0). It exports creatures *and* tiles, walls and
+props, plus the board's real name and id (`BoardSessionManager.CurrentBoardInfo`).
+
+- **Selection export:** if an area is selected with TaleSpire's selection tool when the hotkey is
+  pressed, only that area is exported. This uses the same check TaleSpire's own Copy makes: the
+  current tool is `TilesSelectionBoardTool`, its state isn't Idle, and the area comes from its
+  `_drawBounds`. See `BoardExporter.TryGetActiveSelection`.
+- **Boxes:** each object's `position`/`size` are the center and size of `Placeable.SelectionBounds`,
+  a world-space box with rotation already applied. `origin` is TaleSpire's placement origin. Before
+  v0.3, `position` was the origin; see `../schema/export-schema.md`.
+- **Per-frame work runs on its own hidden object** (`PluginRunner`). On macOS, TaleSpire disables and
+  destroys the plugin's own component during startup (`Plugin component destroyed` in the log), which
+  silently stopped `Update()` and so the hotkey. The runner is `HideAndDontSave` + `DontDestroyOnLoad`,
+  so that sweep doesn't touch it.
 `BoardExporter.GatherPlacedObjects` (`TaleSpireMapExporter/BoardExporter.cs`) reads:
 
 - **Creatures** - live position/rotation from each placed creature's Transform, found by matching
@@ -28,35 +41,76 @@ Rotation is a Y-axis rotation in 24 steps of 15 deg (`DataModel.AssetMath`); the
 as a quaternion. Positions are world-space (`Placeable.WorldOrigin`); `SelectionBounds.size` gives a
 per-object AABB you can extrude a box mesh from in the viewer.
 
-## Prerequisites (Windows, since TaleSpire/BepInEx are Windows-only)
+## Install on macOS (native TaleSpire build)
 
-- TaleSpire installed via Steam, with the community BepInExPack installed (via r2modman/Thunderstore,
-  or manually - see https://talespire.thunderstore.io/package/bbepisTaleSpire/BepInExPack/).
-- .NET SDK matching `net472` (the Visual Studio Build Tools / `dotnet` CLI both work).
-- [ILSpy](https://github.com/icsharpcode/ILSpy) or [dnSpy](https://github.com/dnSpy/dnSpy) for the
-  "next step" below.
+TaleSpire's Mac version is a native Unity/Mono app, and its code signature allows library
+injection. That means BepInEx's Mac loader works with it, on Apple Silicon and Intel.
 
-## Build
+```
+mod/install-mac.sh
+```
+
+The script:
+
+1. Downloads BepInEx 5.4.23.5 (`BepInEx_macos_universal`) and checks its checksum.
+2. Unpacks it next to `TaleSpire.app` in
+   `~/Library/Application Support/Steam/steamapps/common/TaleSpire/`.
+3. Sets `executable_name="TaleSpire.app"` in `run_bepinex.sh`. It also makes the launcher start
+   TaleSpire as **x86_64 under Rosetta**. BepInEx 5's MonoMod can't patch code on Apple Silicon:
+   the preloader crashes with a `NullReferenceException` in `DetourHelper.GetIdentifiable` and
+   writes `preloader_*.log` into `TaleSpire.app/Contents/MacOS/`. TaleSpire is a universal
+   binary, so the Intel half runs fine through Rosetta.
+4. Builds this plugin and copies it to `BepInEx/plugins/TaleSpireMapExporter/`.
+
+It needs a .NET SDK: `brew install --cask dotnet-sdk`, or
+`curl -sSL https://dot.net/v1/dotnet-install.sh | bash -s -- --channel LTS` (installs into
+`~/.dotnet` with no admin password).
+
+After that, set the Steam launch option once. Right-click TaleSpire → Properties → Launch Options:
+
+```
+"/Users/<you>/Library/Application Support/Steam/steamapps/common/TaleSpire/run_bepinex.sh" %command%
+```
+
+Re-run the script any time to rebuild and redeploy. If a TaleSpire update ever removes BepInEx,
+re-running reinstalls it. To uninstall, clear the launch option. You can also delete `BepInEx/`,
+`run_bepinex.sh`, `libdoorstop.dylib`, `.doorstop_version` and `changelog.txt` from the game folder.
+
+## Install on Windows
+
+- Install the BepInExPack for TaleSpire (r2modman/Thunderstore, or manually:
+  https://talespire.thunderstore.io/package/bbepisTaleSpire/BepInExPack/).
+- Install the .NET SDK, then:
 
 ```
 cd mod/TaleSpireMapExporter
-dotnet build -p:TaleSpirePath="C:\Program Files (x86)\Steam\steamapps\common\TaleSpire"
+dotnet build -c Release -p:TaleSpirePath="C:\Program Files (x86)\Steam\steamapps\common\TaleSpire"
 ```
 
-Omit `-p:TaleSpirePath=...` if TaleSpire is installed at the default path already hardcoded as the
-fallback in the `.csproj`.
+Leave out `-p:TaleSpirePath=...` if TaleSpire is in the default Steam location.
 
-## Install
+## Build details
 
-Copy the built `TaleSpireMapExporter.dll` (and `manifest.json`, copied alongside it automatically)
-into `TaleSpire/BepInEx/plugins/TaleSpireMapExporter/`, then launch TaleSpire. Check
-`BepInEx/LogOutput.log` for a `TaleSpire Map Exporter v0.1.0 loaded` line to confirm it's running.
+- The `.csproj` finds the game's managed DLLs in `TaleSpire.app/Contents/Resources/Data/Managed`
+  (macOS) or `TaleSpire_Data/Managed` (Windows). Set `TaleSpirePath` to override the install folder.
+- After a successful build, if `BepInEx/core` exists in the game folder, the plugin and
+  `manifest.json` are copied into `BepInEx/plugins/TaleSpireMapExporter/`. Pass
+  `-p:DeployToGame=false` to skip that.
+- To confirm the plugin loaded, look for `TaleSpire Map Exporter v0.3.0 loaded` and then
+  `Update loop running` in `BepInEx/LogOutput.log`.
 
 ## Use
 
-Load a board, press **Ctrl+Shift+E** (configurable in `BepInEx/config/com.jsbertsch.talespiremapexporter.cfg`
-after the first run), and a JSON file will appear in `Documents/TaleSpireMapExporter/`. Drag that file
-into the web viewer (`../viewer/index.html`).
+Load a board and press **Ctrl+Shift+E**. An on-screen message confirms the export and shows its
+path, normally `~/Documents/TaleSpireMapExporter/<board name>_<timestamp>.json`. Drag that file into
+the web viewer (see the top-level README).
+
+Settings are in `BepInEx/config/com.jsbertsch.talespiremapexporter.cfg`, created on first launch:
+
+- `[General]` `ExportHotkey`, `ExportFolder`, `ShowNotifications`, and `AssetIndexPath`.
+- `[Diagnostics]` `EnableDiagnosticHotkeys` (off by default) turns on the scan, inspect and peek
+  developer hotkeys described below. `LogKeyPresses` logs every key the plugin sees, for when the
+  hotkey seems dead.
 
 ## How the data model was found (historical trail)
 
@@ -68,6 +122,8 @@ atmosphere, or GM data to the export). The final confirmation step used `ilspycm
 tool: `dotnet tool install -g ilspycmd`) against `TaleSpire_Data/Managed/*.dll` -
 `Bouncyrock.TaleSpire.DataModel.Runtime.dll` holds `Placeable`, `PlaceableLayout`, `Zone`,
 `InactiveZoneData`; `Bouncyrock.BouncePackage.Runtime.dll` holds `NativeGreedyList<T>`.
+
+(These hotkeys only work with `[Diagnostics] EnableDiagnosticHotkeys = true` in the config.)
 
 1. **Scan the live scene instead of guessing from source.** Press the scan hotkey (default
    **Ctrl+Alt+E**, configurable in the generated `.cfg` alongside the export hotkey) while a board is
@@ -144,12 +200,10 @@ tool: `dotnet tool install -g ilspycmd`) against `TaleSpire_Data/Managed/*.dll` 
 Remaining niceties (optional):
 
 - Point `AssetIndexPath` (in the generated config) at one of TaleSpire's own asset databases -
-  `Taleweaver/<packId>/index.json` in the game install - so exports resolve asset GUIDs to real
+  `Taleweaver/<packId>/index.json` in the game install (on macOS, under
+  `TaleSpire.app/Contents/Resources/Taleweaver/`) - so exports resolve asset GUIDs to real
   names/categories instead of raw GUIDs. (The `Kind` from the data model already gives a coarse
   category - tile/prop/etc - even without this.)
 - If you later want lights/atmosphere/GM data, the same diagnostic hotkeys + `ilspycmd` approach
   applies; the manager cluster under `SingletonHub` is the place to look.
 
-Report back what you find (the scene-scan excerpt, class names, field names, sample logged values) so
-the export/category logic and the viewer's coordinate-mapping assumptions can be corrected against
-real data.

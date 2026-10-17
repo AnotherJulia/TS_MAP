@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 namespace TaleSpireMapExporter
@@ -28,20 +29,107 @@ namespace TaleSpireMapExporter
         // 24 rotation steps of 15 degrees about Y (DataModel.AssetMath.ROTATION_STEP_IN_DEGREES).
         private const float RotationStepDegrees = 15f;
 
-        public static List<PlacedObject> GatherPlacedObjects(AssetIndex assetIndex, Action<string> log)
+        // filter: when set, only objects whose bounds center lies inside it are kept (used to
+        // export just TaleSpire's current selection).
+        public static List<PlacedObject> GatherPlacedObjects(AssetIndex assetIndex, Action<string> log, Bounds? filter = null)
         {
             var objects = new List<PlacedObject>();
             GatherCreatures(objects, assetIndex, log);
             GatherPlaceables(objects, assetIndex, log);
+
+            if (filter.HasValue)
+            {
+                var keep = filter.Value;
+                keep.Expand(0.02f); // tolerate float noise on selection edges
+                objects.RemoveAll(o => !keep.Contains(new Vector3(o.position.x, o.position.y, o.position.z)));
+                log($"BoardExporter: kept {objects.Count} object(s) inside the selection {keep.min} - {keep.max}.");
+            }
             return objects;
         }
 
-        public static string TryGetBoardName()
+        // TaleSpire's tile selection tool (the one Copy/Cut use) keeps the selected box in the
+        // private TilesSelectionBoardTool._drawBounds; a selection is live while that tool is the
+        // current tool and its state machine isn't Idle - the same test TaleSpire's own
+        // CopySelection() makes. All by reflection: BoardToolManager's base type lives in another
+        // assembly this project doesn't reference.
+        public static bool TryGetActiveSelection(out Bounds bounds)
         {
-            // DataModel.Board exposes no obvious board-title field; the name shown in-game lives in
-            // campaign/board metadata outside this data model. A timestamped filename is used
-            // instead (see Plugin.ExportCurrentBoard), so a constant here is fine.
-            return "TaleSpire Board";
+            bounds = default;
+            try
+            {
+                var managerType = FindLoadedType("BoardToolManager");
+                var tool = managerType?.GetProperty("CurrentTool", BindingFlags.Public | BindingFlags.Static)?.GetValue(null);
+                if (tool == null || tool.GetType().Name != "TilesSelectionBoardTool") return false;
+
+                if (!ReflectionDumper.TryGetFieldValue(tool, "_states", out var states) || states == null) return false;
+                var stateType = states.GetType();
+                var state = stateType.GetProperty("CurrentState")?.GetValue(states)
+                    ?? ReflectionDumper.FindField(stateType, "CurrentState")?.GetValue(states);
+                if (state == null || state.ToString() == "Idle") return false;
+
+                if (!ReflectionDumper.TryGetFieldValue(tool, "_drawBounds", out var boxed) || !(boxed is Bounds b)) return false;
+                if (b.size.x < 0.01f && b.size.z < 0.01f) return false;
+
+                bounds = b;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static Type FindLoadedType(string simpleName)
+        {
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                Type[] types;
+                try { types = assembly.GetTypes(); }
+                catch (ReflectionTypeLoadException ex) { types = ex.Types; }
+                foreach (var t in types)
+                {
+                    if (t != null && t.Name == simpleName) return t;
+                }
+            }
+            return null;
+        }
+
+        // The in-game board title and id live in BoardSessionManager.CurrentBoardInfo (a public
+        // static BoardInfo with BoardName/Id), not in DataModel.Board. Read by reflection so a
+        // rename only degrades to the fallback name instead of breaking the export.
+        public static (string name, string id) TryGetBoardInfo()
+        {
+            const string fallbackName = "TaleSpire Board";
+            try
+            {
+                var sessionManager = ReflectionDumper.FindComponentByTypeName("BoardSessionManager");
+                if (sessionManager == null ||
+                    !ReflectionDumper.TryGetFieldValue(sessionManager, "CurrentBoardInfo", out var info) || info == null)
+                {
+                    return (fallbackName, null);
+                }
+
+                var name = ReflectMemberToString(info, "BoardName");
+                string id = null;
+                if (ReflectionDumper.TryGetFieldValue(info, "Id", out var boardGuid) && boardGuid != null)
+                {
+                    // BoardGuid wraps an NGuid in .Value; fall back to BoardGuid.ToString().
+                    id = ReflectMemberToString(boardGuid, "Value") ?? boardGuid.ToString();
+                }
+
+                return (string.IsNullOrWhiteSpace(name) ? fallbackName : name.Trim(), id);
+            }
+            catch
+            {
+                return (fallbackName, null);
+            }
+        }
+
+        private static string ReflectMemberToString(object instance, string memberName)
+        {
+            if (ReflectionDumper.TryGetFieldValue(instance, memberName, out var value) && value != null)
+                return value.ToString();
+            return ReflectPropertyToString(instance, memberName);
         }
 
         private static void GatherCreatures(List<PlacedObject> objects, AssetIndex assetIndex, Action<string> log)
@@ -152,7 +240,11 @@ namespace TaleSpireMapExporter
                             continue;
 
                         var rotSteps = ReflectPropertyToInt(placeable, "Rotation", 0);
-                        var size = ReadBoundsSize(placeable, "SelectionBounds");
+                        // SelectionBounds is a world-space AABB that TaleSpire has already rotated
+                        // (tiles: [origin, origin + rotated size]; props: AssetMath.RotatePropBounds).
+                        // Export its center/size; WorldOrigin is the placement corner, not a center.
+                        if (!TryReadBounds(placeable, "SelectionBounds", out var bounds))
+                            bounds = new Bounds(new Vector3(px, py, pz) + new Vector3(0.5f, 0.5f, 0.5f), Vector3.one);
 
                         objects.Add(new PlacedObject
                         {
@@ -160,9 +252,10 @@ namespace TaleSpireMapExporter
                             assetGuid = assetGuid,
                             name = resolvedName,
                             category = category,
-                            position = new Vec3(px, py, pz),
+                            position = ToVec3(bounds.center),
+                            origin = new Vec3(px, py, pz),
                             rotation = ToQuat(Quaternion.Euler(0f, rotSteps * RotationStepDegrees, 0f)),
-                            size = size,
+                            size = ToVec3(bounds.size),
                         });
                     }
                 }
@@ -256,15 +349,17 @@ namespace TaleSpireMapExporter
             catch { return false; }
         }
 
-        // Reads a UnityEngine.Bounds field's .size, boxed via reflection then unboxed - Bounds is a
-        // UnityEngine struct this project already references. Falls back to unit size on failure.
-        private static Vec3 ReadBoundsSize(object instance, string fieldName)
+        // Reads a UnityEngine.Bounds field, boxed via reflection then unboxed - Bounds is a
+        // UnityEngine struct this project already references.
+        private static bool TryReadBounds(object instance, string fieldName, out Bounds bounds)
         {
-            if (ReflectionDumper.TryGetFieldValue(instance, fieldName, out var boundsObj) && boundsObj is Bounds bounds)
+            if (ReflectionDumper.TryGetFieldValue(instance, fieldName, out var boundsObj) && boundsObj is Bounds b)
             {
-                return ToVec3(bounds.size);
+                bounds = b;
+                return true;
             }
-            return new Vec3(1f, 1f, 1f);
+            bounds = default;
+            return false;
         }
 
         private static Vec3 ToVec3(Vector3 v) => new Vec3(v.x, v.y, v.z);

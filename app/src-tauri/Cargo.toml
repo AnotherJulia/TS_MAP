@@ -1,0 +1,17 @@
+[package]
+name = "talespire-map-viewer"
+version = "0.2.0"
+description = "Desktop viewer for TaleSpire Map Exporter board exports"
+edition = "2021"
+
+[lib]
+name = "talespire_map_viewer_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

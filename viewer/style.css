@@ -100,7 +100,7 @@ body::after {
   top: 18px;
   left: 18px;
   z-index: 10;
-  width: 258px;
+  width: 286px;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -108,8 +108,9 @@ body::after {
   overflow-y: auto;
 }
 
-#panel, #tweak-panel {
-  padding: 16px 18px 16px;
+#panel, #tweak-panel, #tools-panel, #cut-panel, .tool-panel {
+  padding: 14px 16px 14px;
+  flex: none;
 }
 .hud::after {
   /* Thin accent strip along the top edge. */
@@ -166,53 +167,6 @@ body::after {
   letter-spacing: 1px;
 }
 
-#gm-toggle {
-  margin-top: 16px;
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--text);
-  cursor: pointer;
-  user-select: none;
-}
-/* Custom neon checkbox. */
-#gm-toggle input {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 16px;
-  height: 16px;
-  margin: 0;
-  border: 1px solid var(--border);
-  background: var(--field-bg);
-  cursor: pointer;
-  position: relative;
-  transition: box-shadow 0.15s;
-}
-#gm-toggle input:checked {
-  background: var(--cyan);
-  box-shadow: 0 0 12px var(--cyan);
-}
-#gm-toggle input:checked::after {
-  content: "";
-  position: absolute;
-  inset: 3px;
-  background: var(--bg);
-}
-
-#gm-hint {
-  margin-top: 8px;
-  font-size: 11px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--amber);
-  text-shadow: 0 0 8px rgba(255, 207, 74, 0.4);
-  display: none;
-}
-#gm-hint.visible { display: block; }
 
 /* ---- tweak panel ---- */
 .tweak-row {
@@ -417,3 +371,297 @@ body::after {
   padding: 16px 26px;
   box-shadow: 0 0 30px var(--glow);
 }
+
+/* ---- GM map actions (reset view / save notes) ---- */
+#map-actions {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+#map-actions button,
+#load-sample {
+  font-family: var(--hud-font);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  background: rgba(0, 230, 255, 0.05);
+  color: var(--cyan);
+  transition: background 0.15s, box-shadow 0.15s;
+}
+#map-actions button:hover,
+#load-sample:hover {
+  background: rgba(0, 230, 255, 0.14);
+  box-shadow: 0 0 12px var(--glow);
+}
+#notes-status {
+  margin-top: 8px;
+  font-size: 11px;
+  letter-spacing: 0.6px;
+  color: var(--muted);
+}
+#notes-status:empty { display: none; }
+
+/* ---- welcome card (shown until a map is loaded) + file:// warning ---- */
+#welcome,
+#file-warning {
+  position: fixed;
+  z-index: 12;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(460px, calc(100vw - 32px));
+  padding: 20px 24px 22px;
+  font-size: 14px;
+  line-height: 1.55;
+}
+#welcome.hidden { display: none; }
+#welcome ol { margin: 0 0 16px; padding-left: 20px; }
+#welcome li { margin-bottom: 8px; }
+#welcome code,
+#file-warning code,
+kbd {
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 12px;
+  color: var(--cyan-soft);
+  background: var(--field-bg);
+  border: 1px solid var(--border-soft);
+  padding: 1px 5px;
+}
+
+#file-warning { display: none; z-index: 30; }
+#file-warning.visible { display: block; }
+#file-warning h1 { color: var(--amber); }
+
+/* ---- desktop app vs browser ---- */
+.app-only { display: none !important; }
+body.in-app .app-only { display: revert !important; }
+body.in-app .web-only { display: none !important; }
+body.in-app #app-actions.app-only { display: flex !important; }
+
+#app-actions {
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+#app-actions button,
+#welcome-actions button {
+  font-family: var(--hud-font);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  background: rgba(0, 230, 255, 0.05);
+  color: var(--cyan);
+  transition: background 0.15s, box-shadow 0.15s;
+}
+#app-actions button:hover,
+#welcome-actions button:hover { box-shadow: 0 0 12px var(--glow); }
+#app-actions button.primary,
+#welcome-actions button.primary {
+  background: var(--cyan);
+  border-color: var(--cyan);
+  color: var(--bg);
+}
+#recent-exports {
+  width: 100%;
+  font-family: var(--hud-font);
+  font-size: 12px;
+  color: var(--text);
+  background: var(--field-bg);
+  border: 1px solid var(--border-soft);
+  padding: 6px 8px;
+}
+#welcome-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ---- toast (replaces alert()) ---- */
+#toast {
+  position: fixed;
+  z-index: 40;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  max-width: min(560px, calc(100vw - 32px));
+  padding: 10px 16px;
+  font-size: 13px;
+  letter-spacing: 0.3px;
+  color: var(--text);
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  box-shadow: 0 0 18px var(--glow);
+  display: none;
+}
+#toast.visible { display: block; }
+#toast.clickable { cursor: pointer; }
+#toast.error {
+  border-color: rgba(255, 46, 136, 0.6);
+  box-shadow: 0 0 18px rgba(255, 46, 136, 0.35);
+}
+
+
+/* ---- shared small buttons / rows ---- */
+.button-row, .toggle-row {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.button-grid {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.button-row button, .button-grid button, .toggle-row button, .segmented button {
+  font-family: var(--hud-font);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  background: rgba(0, 230, 255, 0.05);
+  color: var(--cyan);
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.button-row button:hover, .button-grid button:hover, .toggle-row button:hover, .segmented button:hover {
+  background: rgba(0, 230, 255, 0.14);
+  box-shadow: 0 0 12px var(--glow);
+}
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+.segmented button { padding: 7px 2px; }
+.segmented button.active {
+  background: var(--cyan);
+  border-color: var(--cyan);
+  color: var(--bg);
+  box-shadow: 0 0 14px var(--glow);
+}
+.segmented kbd, .check kbd, .cut-row kbd {
+  font-size: 10px;
+  padding: 0 3px;
+  margin-left: 2px;
+  opacity: 0.8;
+}
+.segmented button.active kbd { color: var(--bg); background: transparent; border-color: rgba(0,0,0,0.3); }
+
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  cursor: pointer;
+  user-select: none;
+}
+.check input { accent-color: var(--cyan); margin: 0; }
+
+#tool-help, .status-line {
+  margin-top: 10px;
+  font-size: 12px;
+  line-height: 1.45;
+  letter-spacing: 0.3px;
+  color: var(--muted);
+}
+.status-line { margin-top: 0; color: var(--text); }
+
+/* Panels that belong to one tool only show while that tool is active. */
+.tool-panel { display: none; }
+.tool-panel.visible { display: block; }
+
+/* ---- cut sliders ---- */
+.cut-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 8px;
+}
+.cut-row label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--muted);
+  flex: 1;
+  white-space: nowrap;
+}
+.cut-row input[type="range"] { width: 130px; flex: none; accent-color: var(--amber); }
+.cut-row select {
+  font-family: var(--hud-font);
+  font-size: 12px;
+  color: var(--text);
+  background: var(--field-bg);
+  border: 1px solid var(--border-soft);
+  padding: 4px 6px;
+}
+
+/* ---- map style tweaks (collapsed) ---- */
+#tweak-panel summary {
+  font-family: var(--display-font);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+}
+#tweak-panel[open] summary { color: var(--cyan); margin-bottom: 8px; }
+
+/* ---- box selection rectangle ---- */
+#marquee {
+  position: fixed;
+  z-index: 8;
+  display: none;
+  pointer-events: none;
+  border: 1px dashed var(--cyan);
+  background: rgba(0, 230, 255, 0.08);
+}
+#scene[data-tool="select"], #scene[data-tool="token"], #scene[data-tool="notes"] { cursor: crosshair; }
+
+/* ---- controls cheat-sheet ---- */
+#controls-help {
+  position: fixed;
+  z-index: 9;
+  right: 16px;
+  bottom: 16px;
+  max-width: calc(100vw - 340px);
+  padding: 8px 14px;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+  color: var(--muted);
+}
+#controls-help kbd { font-size: 10px; padding: 0 4px; }
+
+/* Netspace: push the HUD accent toward magenta so the mode change is obvious. */
+body.netspace .hud::after { background: linear-gradient(90deg, var(--magenta), transparent); box-shadow: 0 0 10px var(--magenta); }
+
+.style-row { margin-top: 12px; }
+.style-row select { width: 160px; }
+.fp-help { display: none; }
+body.first-person .fp-help { display: inline; }
+body.first-person .orbit-help { display: none; }
+/* In first person the HUD steps back so the view carries the scene. */
+body.first-person #hud-stack { opacity: 0.35; transition: opacity 0.2s; }
+body.first-person #hud-stack:hover { opacity: 1; }
+
+.cyber-only { display: none !important; }
+body.cyber .cyber-only { display: flex !important; }

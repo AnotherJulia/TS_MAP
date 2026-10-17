@@ -23,15 +23,20 @@ namespace TaleSpireMapExporter
         public string assetGuid;
         public string name;
         public string category; // floor | wall | prop | creature | unknown
-        public Vec3 position;
+        public Vec3 position;   // world-space center of the bounding box
+        public Vec3? origin;    // TaleSpire's placement origin (tiles/props only; v0.3+)
         public Quat rotation = Quat.Identity;
-        public Vec3 size = new Vec3(1, 1, 1);
+        public Vec3 size = new Vec3(1, 1, 1); // world-space AABB size (already rotated; v0.3+)
     }
 
     public class ExportRoot
     {
         public string boardName;
+        public string boardId; // TaleSpire board GUID; null if it couldn't be read
+        public string exporterVersion;
         public string exportedAt;
+        public Vec3? selectionMin; // set when only TaleSpire's current selection was exported
+        public Vec3? selectionMax;
         public List<PlacedObject> objects = new List<PlacedObject>();
     }
 }

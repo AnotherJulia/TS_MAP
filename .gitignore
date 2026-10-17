@@ -7,3 +7,9 @@ Directory.Build.props
 # local testing - NOT asset-index.json, which is shipped app data (GUID ->
 # name/water/light lookup), not a personal export.
 /viewer/TaleSpire*.json
+
+# macOS Finder metadata
+.DS_Store
+
+# Tauri app build tools
+node_modules/

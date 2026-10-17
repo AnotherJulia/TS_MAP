@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0a1620"/>
+      <stop offset="1" stop-color="#03070b"/>
+    </linearGradient>
+  </defs>
+  <rect x="64" y="64" width="896" height="896" rx="200" fill="url(#bg)"/>
+  <rect x="64" y="64" width="896" height="896" rx="200" fill="none" stroke="#00e6ff" stroke-opacity="0.55" stroke-width="12"/>
+  <!-- isometric board grid -->
+  <g fill="none" stroke="#00e6ff" stroke-opacity="0.35" stroke-width="10">
+    <path d="M512 380 L812 553 L512 726 L212 553 Z"/>
+    <path d="M287 510 L587 683 M362 466 L662 639 M437 423 L737 596"/>
+    <path d="M437 683 L737 510 M362 639 L662 466 M287 596 L587 423"/>
+  </g>
+  <!-- buildings -->
+  <g stroke="#00e6ff" stroke-width="8" stroke-linejoin="round">
+    <path d="M437 509 L512 466 L587 509 L587 409 L512 366 L437 409 Z" fill="#a8341f"/>
+    <path d="M437 409 L512 452 L587 409 L512 366 Z" fill="#e2552f"/>
+    <path d="M512 452 L512 552" />
+    <path d="M587 596 L662 553 L737 596 L737 546 L662 503 L587 546 Z" fill="#a8341f"/>
+    <path d="M587 546 L662 589 L737 546 L662 503 Z" fill="#e2552f"/>
+  </g>
+  <!-- location marker -->
+  <g>
+    <path d="M512 150 C582 150 632 200 632 266 C632 340 512 430 512 430 C512 430 392 340 392 266 C392 200 442 150 512 150 Z" fill="#fcee0a"/>
+    <circle cx="512" cy="266" r="44" fill="#03070b"/>
+  </g>
+</svg>

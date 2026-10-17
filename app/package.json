@@ -1,0 +1,14 @@
+{
+  "name": "talespire-map-viewer-app",
+  "private": true,
+  "version": "0.2.0",
+  "description": "Desktop (Tauri) wrapper around ../viewer",
+  "scripts": {
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "tauri": "tauri"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2"
+  }
+}

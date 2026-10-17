@@ -8,44 +8,70 @@
     <RootNamespace>TaleSpireMapExporter</RootNamespace>
 
     <!--
-      Point this at your TaleSpire install, e.g.:
+      Point this at your TaleSpire install folder (the Steam "common/TaleSpire" folder), e.g.:
         dotnet build -p:TaleSpirePath="C:\Program Files (x86)\Steam\steamapps\common\TaleSpire"
       or set it permanently by copying this line into a Directory.Build.props next to this
-      file (that file is gitignored so your local path never gets committed).
+      file (that file is gitignored so your local path never gets committed). The defaults
+      below are the standard Steam locations on Windows and macOS.
     -->
+    <TaleSpirePath Condition="'$(TaleSpirePath)' == '' And $([MSBuild]::IsOSPlatform('OSX'))">$(HOME)/Library/Application Support/Steam/steamapps/common/TaleSpire</TaleSpirePath>
     <TaleSpirePath Condition="'$(TaleSpirePath)' == ''">C:\Program Files (x86)\Steam\steamapps\common\TaleSpire</TaleSpirePath>
+
+    <!-- The native macOS build keeps its managed assemblies inside the .app bundle. -->
+    <TaleSpireManaged Condition="Exists('$(TaleSpirePath)/TaleSpire.app')">$(TaleSpirePath)/TaleSpire.app/Contents/Resources/Data/Managed</TaleSpireManaged>
+    <TaleSpireManaged Condition="'$(TaleSpireManaged)' == ''">$(TaleSpirePath)/TaleSpire_Data/Managed</TaleSpireManaged>
+
+    <!-- After a build, copy the plugin into BepInEx/plugins if BepInEx is installed. Pass
+         -p:DeployToGame=false to skip. -->
+    <DeployToGame Condition="'$(DeployToGame)' == ''">true</DeployToGame>
+    <PluginDeployDir>$(TaleSpirePath)/BepInEx/plugins/TaleSpireMapExporter</PluginDeployDir>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Lets net472 build with the dotnet CLI on macOS/Linux, where the .NET Framework
+         targeting pack isn't installed. Compile-time only; nothing ships with the plugin. -->
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
 
   <ItemGroup>
     <!-- BepInEx core, provided by the BepInExPack already installed under TaleSpire's install dir -->
     <Reference Include="BepInEx">
-      <HintPath>$(TaleSpirePath)\BepInEx\core\BepInEx.dll</HintPath>
+      <HintPath>$(TaleSpirePath)/BepInEx/core/BepInEx.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="0Harmony">
-      <HintPath>$(TaleSpirePath)\BepInEx\core\0Harmony.dll</HintPath>
+      <HintPath>$(TaleSpirePath)/BepInEx/core/0Harmony.dll</HintPath>
       <Private>false</Private>
     </Reference>
 
     <!-- Game + Unity assemblies -->
     <Reference Include="Bouncyrock.TaleSpire.Runtime">
-      <HintPath>$(TaleSpirePath)\TaleSpire_Data\Managed\Bouncyrock.TaleSpire.Runtime.dll</HintPath>
+      <HintPath>$(TaleSpireManaged)/Bouncyrock.TaleSpire.Runtime.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Assembly-CSharp">
-      <HintPath>$(TaleSpirePath)\TaleSpire_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>$(TaleSpireManaged)/Assembly-CSharp.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>$(TaleSpirePath)\TaleSpire_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>$(TaleSpireManaged)/UnityEngine.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>$(TaleSpirePath)\TaleSpire_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>$(TaleSpireManaged)/UnityEngine.CoreModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.InputLegacyModule">
-      <HintPath>$(TaleSpirePath)\TaleSpire_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
+      <HintPath>$(TaleSpireManaged)/UnityEngine.InputLegacyModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- On-screen export notice (OnGUI) -->
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>$(TaleSpireManaged)/UnityEngine.IMGUIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>$(TaleSpireManaged)/UnityEngine.TextRenderingModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
@@ -53,5 +79,11 @@
   <ItemGroup>
     <None Include="manifest.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+
+  <Target Name="DeployToGame" AfterTargets="Build" Condition="'$(DeployToGame)' == 'true' And Exists('$(TaleSpirePath)/BepInEx/core')">
+    <MakeDir Directories="$(PluginDeployDir)" />
+    <Copy SourceFiles="$(TargetPath);$(OutDir)manifest.json" DestinationFolder="$(PluginDeployDir)" />
+    <Message Importance="high" Text="Deployed TaleSpireMapExporter to $(PluginDeployDir)" />
+  </Target>
 
 </Project>
