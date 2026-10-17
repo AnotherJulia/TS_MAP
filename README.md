@@ -14,6 +14,8 @@ The viewer draws the board's *shapes* (boxes from TaleSpire's own bounds), not T
 models.
 
 **Setting up? → [docs/INSTALL.md](docs/INSTALL.md)**
+In short: on Windows, double-click `mod/install-windows.bat`. On macOS, run `mod/install-mac.sh`
+and set the Steam launch option it prints.
 
 ## Using it
 
@@ -90,7 +92,7 @@ Cyberspace style.
 
 | Folder | What |
 |---|---|
-| `mod/` | BepInEx plugin for TaleSpire (C#) and `install-mac.sh`. See [mod/README.md](mod/README.md). |
+| `mod/` | BepInEx plugin for TaleSpire (C#), installers (`install-windows.bat`, `install-mac.sh`) and the prebuilt plugin in `dist/`. See [mod/README.md](mod/README.md). |
 | `viewer/` | The viewer: static HTML/JS with three.js vendored in (no build step, works offline). |
 | `app/` | Tauri desktop wrapper around `viewer/`, plus native file access to the export folder. See [app/README.md](app/README.md). |
 | `schema/` | The export file format ([export-schema.md](schema/export-schema.md)). |

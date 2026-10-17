@@ -19,20 +19,16 @@ TaleSpire's Mac version from Steam works with the mod, on both Apple Silicon (M1
 
 You need the TS_MAP folder (this repository) on your Mac.
 
-1. **Install the .NET SDK**, which builds the mod. Use either of these in Terminal:
-   ```sh
-   brew install --cask dotnet-sdk
-   ```
-   or, with no admin password:
-   ```sh
-   curl -sSL https://dot.net/v1/dotnet-install.sh | bash -s -- --channel LTS
-   ```
-2. **Run the installer** from the TS_MAP folder:
+1. **Run the installer** from the TS_MAP folder:
    ```sh
    mod/install-mac.sh
    ```
    It downloads BepInEx (the mod loader, checksum-verified) into TaleSpire's game folder, sets it up,
-   builds the mod, and copies it in. You can run it again any time; it's safe.
+   and installs the mod. With the .NET SDK installed it builds the mod from source; without it, it
+   uses the prebuilt copy in `mod/dist`. You can run it again any time; it's safe.
+2. *(Optional, only if you change the mod's code)* install the .NET SDK with
+   `brew install --cask dotnet-sdk`, or with no admin password:
+   `curl -sSL https://dot.net/v1/dotnet-install.sh | bash -s -- --channel LTS`.
 3. **Set the Steam launch option.** The script prints this line at the end:
    - In Steam, right-click **TaleSpire → Properties → General → Launch Options**.
    - Paste the line:
@@ -67,18 +63,34 @@ xattr -dr com.apple.quarantine "/Applications/TaleSpire Map Viewer.app"
 
 ## Windows
 
-1. Install the **BepInExPack for TaleSpire** with r2modman, or manually from
-   <https://talespire.thunderstore.io/package/bbepisTaleSpire/BepInExPack/>.
-2. Install the **.NET SDK** (<https://dotnet.microsoft.com/download>).
-3. Build and install the mod. It copies itself into `BepInEx/plugins` automatically:
-   ```bat
-   cd mod\TaleSpireMapExporter
-   dotnet build -c Release
-   ```
-   If TaleSpire isn't in the default Steam folder, add
-   `-p:TaleSpirePath="D:\Games\Steam\steamapps\common\TaleSpire"`.
-4. Viewer: build the app on Windows (`cd app && npm install && npm run build`, which produces an
-   installer in `app/src-tauri/target/release/bundle/`), or use the browser version (below).
+### 1. Install the mod
+
+1. **Close TaleSpire.**
+2. In the TS_MAP folder, open `mod` and **double-click `install-windows.bat`**.
+   - It finds TaleSpire in your Steam libraries, on any drive.
+   - It installs BepInEx (the mod loader) if it isn't there yet: downloaded from the official
+     release and checksum-verified.
+   - It installs the mod's prebuilt copy, so you don't need the .NET SDK or any other tools.
+3. **Start TaleSpire from Steam.** On Windows there's **no launch option to set**; BepInEx loads by
+   itself.
+
+If TaleSpire isn't found, run it from PowerShell with the folder:
+```powershell
+.\mod\install-windows.ps1 -GamePath "D:\SteamLibrary\steamapps\common\TaleSpire"
+```
+Other options: `-Build` builds the mod from source (needs the .NET SDK), and
+`-Uninstall [-RemoveBepInEx]` removes it.
+
+> **r2modman / Thunderstore users:** if you start TaleSpire through r2modman, BepInEx runs from
+> your r2modman profile instead of the game folder. Copy
+> `BepInEx\plugins\TaleSpireMapExporter` from the game folder into the profile's
+> `BepInEx\plugins` folder.
+
+### 2. The viewer
+
+Build the app on Windows (`cd app && npm install && npm run build`, which needs Rust and Node.js).
+It produces an installer in `app\src-tauri\target\release\bundle\`. Or use the browser version
+(below).
 
 ---
 
@@ -99,9 +111,9 @@ Look in the TaleSpire game folder:
 
 | What you see | Meaning | Fix |
 |---|---|---|
-| No `BepInEx/LogOutput.log` at all | BepInEx isn't starting | Check the Steam launch option, and start TaleSpire from **Steam** (not the `.app` directly) |
+| No `BepInEx/LogOutput.log` at all | BepInEx isn't starting | **Mac:** check the Steam launch option, and start TaleSpire from **Steam**. **Windows:** check `winhttp.dll` and `doorstop_config.ini` are next to `TaleSpire.exe` (re-run the installer); antivirus sometimes quarantines `winhttp.dll` |
 | `preloader_*.log` in `TaleSpire.app/Contents/MacOS/` | BepInEx crashed while starting | Re-run `mod/install-mac.sh` (it sets up the Rosetta launch) |
-| Log exists but no `TaleSpire Map Exporter … loaded` | Mod isn't installed | Re-run `mod/install-mac.sh` and check `BepInEx/plugins/TaleSpireMapExporter/` |
+| Log exists but no `TaleSpire Map Exporter … loaded` | Mod isn't installed | Re-run the installer and check `BepInEx/plugins/TaleSpireMapExporter/` |
 | `loaded` is there, hotkey still silent | Keys not reaching the mod | Set `LogKeyPresses = true` under `[Diagnostics]` in `BepInEx/config/com.jsbertsch.talespiremapexporter.cfg`, restart, press the keys, and check the log |
 
 The game folder on a Mac is

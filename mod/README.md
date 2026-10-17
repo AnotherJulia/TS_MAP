@@ -78,9 +78,26 @@ re-running reinstalls it. To uninstall, clear the launch option. You can also de
 
 ## Install on Windows
 
-- Install the BepInExPack for TaleSpire (r2modman/Thunderstore, or manually:
-  https://talespire.thunderstore.io/package/bbepisTaleSpire/BepInExPack/).
-- Install the .NET SDK, then:
+Double-click `install-windows.bat`, which runs `install-windows.ps1`. The script:
+
+1. Finds TaleSpire through Steam's registry entry and every library listed in
+   `libraryfolders.vdf`.
+2. Installs BepInEx 5.4.23.5 (win_x64, checksum-verified) if `BepInEx/core` is missing. That's
+   loaded through `winhttp.dll`, so no launch option is needed.
+3. Copies the prebuilt plugin from `dist/` into `BepInEx/plugins/TaleSpireMapExporter`.
+
+Options: `-GamePath <folder>`, `-Build` (build from source instead), and
+`-Uninstall [-RemoveBepInEx]`. It refuses to run while TaleSpire is open.
+
+### Prebuilt plugin (`dist/`)
+
+`dist/TaleSpireMapExporter.dll` targets .NET Framework 4.7.2. That isn't platform-specific, so a DLL
+built on any OS works for Windows and macOS. **After changing the mod's code, run
+`./build-dist.sh` and commit `dist/`**, so the installers ship the new version.
+
+### Building manually on Windows
+
+Install the .NET SDK, then:
 
 ```
 cd mod/TaleSpireMapExporter

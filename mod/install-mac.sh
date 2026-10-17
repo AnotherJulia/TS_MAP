@@ -50,15 +50,21 @@ if [ -z "$DOTNET" ] && [ -x "$HOME/.dotnet/dotnet" ]; then
   DOTNET="$HOME/.dotnet/dotnet"
   export DOTNET_ROOT="$HOME/.dotnet"
 fi
-if [ -z "$DOTNET" ]; then
+if [ -n "$DOTNET" ]; then
+  "$DOTNET" build "$SCRIPT_DIR/TaleSpireMapExporter/TaleSpireMapExporter.csproj" -c Release \
+    -p:TaleSpirePath="$GAME_DIR" -nologo -v:q
+elif [ -f "$SCRIPT_DIR/dist/TaleSpireMapExporter.dll" ]; then
+  # No .NET SDK: use the prebuilt plugin (see build-dist.sh).
+  echo "No .NET SDK found - installing the prebuilt plugin from mod/dist."
+  mkdir -p "$GAME_DIR/BepInEx/plugins/TaleSpireMapExporter"
+  cp "$SCRIPT_DIR/dist/TaleSpireMapExporter.dll" "$SCRIPT_DIR/dist/manifest.json" \
+    "$GAME_DIR/BepInEx/plugins/TaleSpireMapExporter/"
+else
   echo "The .NET SDK is needed to build the plugin. Install it with either:" >&2
   echo "  brew install --cask dotnet-sdk" >&2
   echo "  curl -sSL https://dot.net/v1/dotnet-install.sh | bash -s -- --channel LTS" >&2
   exit 1
 fi
-
-"$DOTNET" build "$SCRIPT_DIR/TaleSpireMapExporter/TaleSpireMapExporter.csproj" -c Release \
-  -p:TaleSpirePath="$GAME_DIR" -nologo -v:q
 
 # --- 3. Steam launch option ---------------------------------------------------------------
 cat <<EOF
